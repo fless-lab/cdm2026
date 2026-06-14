@@ -3,7 +3,46 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Coupe du Monde 2026 — Calendrier</title>
+<title>Coupe du Monde 2026 — Calendrier complet, scores en direct & fuseau horaire</title>
+<meta name="description" content="Calendrier complet de la Coupe du Monde 2026 (Canada · Mexique · États-Unis) : tous les matchs des 12 groupes jusqu'à la finale, scores en direct, classements, heures converties dans votre fuseau horaire, sélection d'équipes favorites et pronostics entre amis.">
+<meta name="keywords" content="Coupe du Monde 2026, World Cup 2026, calendrier, scores en direct, résultats, groupes, classement, fuseau horaire, GMT, pronostics, bracket, finale, FIFA, Canada, Mexique, États-Unis">
+<meta name="author" content="cdm2026">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#0E7C5A">
+<link rel="canonical" href="https://fless-lab.github.io/cdm2026/">
+<meta name="language" content="fr">
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Coupe du Monde 2026">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:title" content="Coupe du Monde 2026 — Calendrier complet & scores en direct">
+<meta property="og:description" content="Tous les matchs jusqu'à la finale, scores en direct, classements et heures dans VOTRE fuseau horaire. Sélectionnez vos équipes et lancez un défi de pronostics entre amis.">
+<meta property="og:url" content="https://fless-lab.github.io/cdm2026/">
+<meta property="og:image" content="https://fless-lab.github.io/cdm2026/og.svg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Coupe du Monde 2026 — calendrier et scores en direct">
+<meta property="og:image:type" content="image/svg+xml">
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Coupe du Monde 2026 — Calendrier complet & scores en direct">
+<meta name="twitter:description" content="Tous les matchs jusqu'à la finale, scores en direct et heures dans votre fuseau horaire. Pronostics entre amis inclus.">
+<meta name="twitter:image" content="https://fless-lab.github.io/cdm2026/og.svg">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@graph":[
+    {"@type":"WebSite","@id":"https://fless-lab.github.io/cdm2026/#website","url":"https://fless-lab.github.io/cdm2026/","name":"Coupe du Monde 2026 — Calendrier & scores","inLanguage":"fr","description":"Calendrier complet, scores en direct, classements et conversion de fuseau horaire pour la Coupe du Monde de football 2026."},
+    {"@type":"SportsEvent","name":"Coupe du Monde de la FIFA 2026","sport":"Football","startDate":"2026-06-11","endDate":"2026-07-19","eventStatus":"https://schema.org/EventScheduled","eventAttendanceMode":"https://schema.org/OfflineEventAttendanceMode","description":"48 équipes, 12 groupes, du 11 juin au 19 juillet 2026.","location":[{"@type":"Country","name":"Canada"},{"@type":"Country","name":"Mexique"},{"@type":"Country","name":"États-Unis"}],"organizer":{"@type":"Organization","name":"FIFA","url":"https://www.fifa.com/"}},
+    {"@type":"FAQPage","mainEntity":[
+      {"@type":"Question","name":"Quand a lieu la Coupe du Monde 2026 ?","acceptedAnswer":{"@type":"Answer","text":"Du 11 juin au 19 juillet 2026, organisée par le Canada, le Mexique et les États-Unis. La finale se joue le 19 juillet 2026 à New York/New Jersey."}},
+      {"@type":"Question","name":"Combien d'équipes participent à la Coupe du Monde 2026 ?","acceptedAnswer":{"@type":"Answer","text":"48 équipes réparties en 12 groupes de 4, une première dans l'histoire du tournoi."}},
+      {"@type":"Question","name":"Comment voir les heures des matchs dans mon fuseau horaire ?","acceptedAnswer":{"@type":"Answer","text":"Le calendrier convertit automatiquement chaque heure de match dans votre fuseau ; vous pouvez choisir n'importe quel GMT (-12 à +14) en haut de la page."}}
+    ]}
+  ]
+}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -103,11 +142,14 @@ main{padding:6px 0 60px}
 .tr .sc{margin-left:auto;font-size:16px;font-weight:700;color:var(--ink);min-width:18px;text-align:right}
 .tr.lose .nm,.tr.lose .sc{color:var(--soft);font-weight:500}
 .tr.win .sc{color:var(--green-d)}
-.m-v{text-align:right;color:var(--muted);font-size:12px;line-height:1.3;max-width:140px}
+.m-v{display:flex;flex-direction:column;align-items:flex-end;justify-content:flex-end;gap:3px;color:var(--muted);font-size:12px;line-height:1.3;max-width:150px}
 .m-v .ci{font-weight:600;color:var(--ink)}
+.watch{font-size:11px;font-weight:800;color:var(--green-d);text-decoration:none;white-space:nowrap}
+.watch:hover{text-decoration:underline}
 @media(max-width:560px){
-  .m{grid-template-columns:50px minmax(0,1fr)}
-  .m-v{display:none}
+  .m{grid-template-columns:46px minmax(0,1fr) auto}
+  .m-v{max-width:86px}
+  .m-v .ci{display:none}
   .tr .nm{font-size:14px}
 }
 
@@ -183,11 +225,93 @@ table{width:100%;border-collapse:collapse;font-size:13px}
 footer{color:var(--soft);font-size:12px;text-align:center;padding:30px 18px 50px;line-height:1.6}
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:11px 18px;border-radius:11px;font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:all .25s;z-index:60;box-shadow:0 8px 30px rgba(0,0,0,.2)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+/* Pin button on cards */
+.m{position:relative}
+.pin{position:absolute;top:7px;right:8px;width:24px;height:24px;border:0;background:transparent;border-radius:7px;cursor:pointer;font-size:13px;line-height:1;opacity:.32;filter:grayscale(1);transition:opacity .12s,transform .05s}
+.pin:hover{opacity:.7;background:#F4F3EE}
+.pin.on{opacity:1;filter:none}
+.pin:active{transform:scale(.9)}
+
+/* Picker — accordéon compact par groupe */
+.pgroups{padding:10px 12px;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;max-height:380px;overflow:auto}
+details.pg{border:1px solid var(--line);border-radius:11px;background:#FCFBF7;overflow:hidden}
+details.pg>summary{list-style:none;cursor:pointer;padding:9px 12px;display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;user-select:none}
+details.pg>summary::-webkit-details-marker{display:none}
+details.pg>summary .gl{background:var(--ink);color:#fff;width:20px;height:20px;border-radius:6px;display:grid;place-items:center;font-size:11px;font-weight:800}
+details.pg>summary .cnt{margin-left:auto;font-size:10px;font-weight:800;color:#fff;background:var(--gold);border-radius:20px;padding:1px 7px;display:none}
+details.pg>summary .cnt.show{display:inline-block}
+details.pg>summary .chev{margin-left:6px;color:var(--soft);transition:transform .15s}
+details.pg[open]>summary .chev{transform:rotate(90deg)}
+details.pg[open]>summary .cnt{margin-left:auto}
+.pg-body{padding:4px 8px 9px;display:flex;flex-direction:column;gap:4px}
+
+/* Mes équipes — repliable */
+.myteam-h{cursor:pointer}
+.myteam-h .chev{color:var(--soft);transition:transform .15s;font-size:13px}
+details.mt[open] .myteam-h .chev{transform:rotate(90deg)}
+details.mt>summary{list-style:none}
+details.mt>summary::-webkit-details-marker{display:none}
+
+/* Dock — matchs épinglés, collés en bas */
+#dock{position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(25,27,31,.97);backdrop-filter:blur(8px);border-top:1px solid rgba(255,255,255,.08);transform:translateY(110%);transition:transform .28s cubic-bezier(.2,.7,.2,1);box-shadow:0 -8px 30px rgba(0,0,0,.22)}
+#dock.show{transform:translateY(0)}
+.dock-in{display:flex;gap:10px;overflow-x:auto;padding:11px 18px;scrollbar-width:thin}
+.dock-m{position:relative;flex:0 0 auto;min-width:236px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);border-radius:12px;padding:9px 12px}
+.dock-x{position:absolute;top:6px;right:7px;width:20px;height:20px;border:0;background:transparent;color:rgba(255,255,255,.45);border-radius:6px;cursor:pointer;font-size:12px;line-height:1}
+.dock-x:hover{background:rgba(255,255,255,.12);color:#fff}
+.dock-meta{display:flex;flex-direction:column;gap:1px;margin-bottom:6px;padding-right:18px}
+.dk-cd{font-size:12.5px;font-weight:800;color:#fff}
+.dk-cd.live{color:#FF8A8A}.dk-cd.ft{color:#7FD6B2}.dk-cd.up{color:#F2D27A}
+.dock-grp{font-size:10.5px;color:rgba(255,255,255,.5)}
+.dock-teams{display:flex;flex-direction:column;gap:5px}
+.dock-tr{display:flex;align-items:center;gap:8px;color:#F4F3EE;font-size:13.5px;font-weight:600;min-width:0}
+.dock-tr .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dock-tr .sc{margin-left:auto;font-size:15px;font-weight:800;color:#fff;min-width:14px;text-align:right}
+body.has-dock{padding-bottom:118px}
+
+/* Jeux */
+.game-intro{margin:14px 0 4px;color:var(--muted);font-size:13.5px;max-width:64ch}
+.gsec{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);margin-top:14px;overflow:hidden}
+.gsec-h{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:15px;padding:13px 16px;border-bottom:1px solid var(--line2);display:flex;align-items:center;gap:9px}
+.gsec-h .step{background:var(--ink);color:#fff;width:22px;height:22px;border-radius:7px;display:grid;place-items:center;font-size:12px;flex:none}
+.gsec-b{padding:14px 16px}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.field label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+.inp{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:9px 12px;font-size:14px;font-family:inherit;color:var(--ink);width:100%}
+.inp:focus{outline:2px solid var(--green);outline-offset:1px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pred{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:9px 4px;border-top:1px solid var(--line2)}
+.pred:first-child{border-top:0}
+.pred .pinfo{min-width:0}
+.pred .pteams{display:flex;flex-direction:column;gap:4px}
+.pred .ptr{display:flex;align-items:center;gap:7px;font-size:13.5px;font-weight:600}
+.pred .pmeta{font-size:11px;color:var(--soft);margin-top:3px}
+.pred .pin2{display:flex;align-items:center;gap:6px}
+.scin{width:42px;height:38px;text-align:center;border:1px solid var(--line);border-radius:9px;font-size:16px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--ink);background:var(--card)}
+.scin:focus{outline:2px solid var(--green)}
+.pred.lock{opacity:.55}
+.pred.lock .scin{background:#F4F3EE;pointer-events:none}
+.pred .res{font-size:10.5px;font-weight:800;margin-top:4px}
+.pred .res.g5{color:var(--green-d)}.pred .res.g3{color:var(--gold)}.pred .res.g1{color:var(--muted)}.pred .res.g0{color:var(--live)}
+.codebox{display:flex;gap:8px;margin-top:6px}
+.codebox textarea,.codebox .inp{flex:1;min-height:64px;resize:vertical;font-family:'JetBrains Mono',monospace;font-size:11.5px;line-height:1.4;word-break:break-all}
+.lb{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:4px}
+.lb th{font-size:10px;font-weight:800;color:var(--soft);text-transform:uppercase;letter-spacing:.04em;text-align:left;padding:8px 6px}
+.lb th.r,.lb td.r{text-align:right}
+.lb td{padding:9px 6px;border-top:1px solid var(--line2)}
+.lb td.rk{font-weight:800;color:var(--muted);width:28px}
+.lb tr.me{background:#FFFDF6}
+.lb td.pts{font-weight:800;font-size:15px}
+.lb .who{font-weight:700}
+.lb .sub{font-size:11px;color:var(--soft);font-weight:500}
+.muted{color:var(--muted);font-size:12.5px}
+.hintline{font-size:12px;color:var(--soft);margin:2px 0 10px}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 :focus-visible{outline:2px solid var(--green);outline-offset:2px;border-radius:6px}
 </style>
 </head>
 <body>
+<h1 style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0">Coupe du Monde 2026 — calendrier complet, scores en direct et heures dans votre fuseau horaire</h1>
 <header>
   <div class="wrap hbar">
     <div class="brand">
@@ -211,9 +335,11 @@ footer{color:var(--soft);font-size:12px;text-align:center;padding:30px 18px 50px
       <button class="tab" data-v="group">Par groupe</button>
       <button class="tab" data-v="ko">Phases finales</button>
       <button class="tab" data-v="my">Mes équipes</button>
+      <button class="tab" data-v="game">Jeux</button>
     </div>
     <div class="pill">
       <span class="upd" id="updStamp"></span>
+      <select class="tz" id="region" aria-label="Où regarder les matchs"></select>
       <button class="chipbtn" id="pickBtn">★ Sélectionner des équipes <span class="dot" id="selCount" style="display:none">0</span></button>
     </div>
   </div>
@@ -223,7 +349,7 @@ footer{color:var(--soft);font-size:12px;text-align:center;padding:30px 18px 50px
       <b>Mettez en avant vos équipes — leurs matchs seront surlignés</b>
       <button class="x" id="clearSel">Tout effacer</button>
     </div>
-    <div class="grid" id="teamGrid"></div>
+    <div class="pgroups" id="teamGrid"></div>
   </div>
 
   <main id="main"></main>
@@ -241,6 +367,7 @@ footer{color:var(--soft);font-size:12px;text-align:center;padding:30px 18px 50px
   </footer>
 </div>
 
+<div id="dock" aria-live="polite"></div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -396,15 +523,31 @@ let offset = -new Date().getTimezoneOffset(); // minutes; 'auto' local par défa
 let view = 'date';
 let sel = new Set();
 let lastUpdate = null;
+let pins = new Set();          // numéros de matchs épinglés (dock)
+let myOpen = new Set();        // équipes dépliées dans « Mes équipes »
+let me = {n:'',fav:'',champ:'',preds:{}}; // mon pronostic (partie Jeux)
+let roster = [];               // codes d'amis importés pour le classement
+let region = '';               // région choisie pour « Où regarder »
 
 /* ---------- Persistance (best-effort) ---------- */
 async function saveState(){
-  try{ localStorage.setItem('cm26_tz',String(offset)); localStorage.setItem('cm26_sel',JSON.stringify([...sel])); }catch(e){}
+  try{
+    localStorage.setItem('cm26_tz',String(offset));
+    localStorage.setItem('cm26_sel',JSON.stringify([...sel]));
+    localStorage.setItem('cm26_pins',JSON.stringify([...pins]));
+    localStorage.setItem('cm26_me',JSON.stringify(me));
+    localStorage.setItem('cm26_roster',JSON.stringify(roster));
+    localStorage.setItem('cm26_region',region);
+  }catch(e){}
 }
 async function loadState(){
   try{
     const t=localStorage.getItem('cm26_tz'); if(t!=null) offset=parseInt(t,10);
     const s=localStorage.getItem('cm26_sel'); if(s){const a=JSON.parse(s); if(Array.isArray(a)) sel=new Set(a);}
+    const p=localStorage.getItem('cm26_pins'); if(p){const a=JSON.parse(p); if(Array.isArray(a)) pins=new Set(a.map(Number));}
+    const m=localStorage.getItem('cm26_me'); if(m){const o=JSON.parse(m); if(o&&typeof o==='object'){me={n:o.n||'',fav:o.fav||'',champ:o.champ||'',preds:o.preds||{}};}}
+    const r=localStorage.getItem('cm26_roster'); if(r){const a=JSON.parse(r); if(Array.isArray(a)) roster=a;}
+    const rg=localStorage.getItem('cm26_region'); if(rg!=null) region=rg;
   }catch(e){}
 }
 
@@ -430,7 +573,7 @@ function status(m){
   if(m.hs==null && m.utc < nowMs() && m.utc > nowMs()-3*3600000) return {cls:'live',txt:'En cours ?'};
   return {cls:'',txt:'À venir'};
 }
-const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 /* ---------- Classements ---------- */
 function standings(g){
@@ -463,12 +606,13 @@ function card(m){
   const hw=played&&m.hs>m.as, aw=played&&m.as>m.hs;
   const sc=v=>played?v:'';
   return `<div class="m${spot}">
+    <button class="pin ${pins.has(m.no)?'on':''}" data-pin="${m.no}" title="${pins.has(m.no)?'Détacher du dock':'Épingler en bas de l’écran'}" aria-label="Épingler ce match">📌</button>
     <div class="m-t"><span class="tm mono">${fmtT(m.utc)}</span><span class="gp">Groupe ${m.g}</span><span class="st ${s.cls}">${s.txt}</span></div>
     <div class="teams">
       <div class="tr ${aw?'lose':''} ${hw?'win':''}">${flag(m.h)}<span class="nm">${T[m.h].n}</span><span class="sc mono">${sc(m.hs)}</span></div>
       <div class="tr ${hw?'lose':''} ${aw?'win':''}">${flag(m.a)}<span class="nm">${T[m.a].n}</span><span class="sc mono">${sc(m.as)}</span></div>
     </div>
-    <div class="m-v"><span class="ci">${esc(m.city)}</span></div>
+    <div class="m-v"><span class="ci">${esc(m.city)}</span>${watchHTML(m)}</div>
   </div>`;
 }
 
@@ -536,36 +680,48 @@ function viewKO(){
 /* ---------- Rendu : mes équipes ---------- */
 function viewMy(){
   if(sel.size===0) return `<div class="empty"><b>Aucune équipe sélectionnée</b>Touchez « ★ Sélectionner des équipes » pour suivre vos favoris : leurs matchs seront surlignés partout et regroupés ici.</div>`;
-  let html='';
+  let html='<p class="hintline">Touchez une équipe pour déplier tous ses matchs — replié, son prochain match reste visible.</p>';
   const codes=[...sel].sort((a,b)=>T[a].n.localeCompare(T[b].n));
   codes.forEach(c=>{
     const g=Object.keys(GROUPS).find(k=>GROUPS[k].includes(c));
     const ms=MATCHES.filter(m=>m.h===c||m.a===c).sort((a,b)=>a.utc-b.utc);
     const next=ms.find(m=>m.hs==null);
-    html+=`<div class="myteam"><div class="myteam-h">${flag(c,'lg')}<span class="nm">${T[c].n}</span><span class="gl">Groupe ${g}</span><button class="rm" data-rm="${c}">Retirer</button></div>`;
+    const open=myOpen.has(c)?' open':'';
+    html+=`<details class="myteam mt" data-mt="${c}"${open}><summary><div class="myteam-h">${flag(c,'lg')}<span class="nm">${T[c].n}</span><span class="gl">Groupe ${g}</span><span class="chev">›</span><button class="rm" data-rm="${c}">Retirer</button></div>`;
     if(next){
       const opp=next.h===c?next.a:next.h;
       html+=`<div class="next"><span class="lab">Prochain</span><span>${fmtDay(next.utc)} · <b class="mono">${fmtT(next.utc)}</b> · vs ${flag(opp)} ${T[opp].n} · ${esc(next.city)}</span></div>`;
     }else{
       html+=`<div class="next none"><span class="lab">Poules terminées</span><span>Tous les matchs de groupe sont joués.</span></div>`;
     }
-    html+='<div class="cards" style="padding:10px 12px;gap:6px">';
+    html+='</summary><div class="cards" style="padding:10px 12px;gap:6px">';
     ms.forEach(m=>html+=card(m));
-    html+='</div></div>';
+    html+='</div></details>';
   });
   return html;
 }
 
-/* ---------- Sélecteur d'équipes ---------- */
-function renderPicker(){
+/* ---------- Sélecteur d'équipes (accordéon compact par groupe) ---------- */
+function buildPicker(){
   const grid=document.getElementById('teamGrid');
   let html='';
-  Object.keys(GROUPS).forEach(g=>GROUPS[g].forEach(c=>{
-    html+=`<button class="tchip ${sel.has(c)?'sel':''}" data-t="${c}">${flag(c)}<span>${T[c].n}</span><span class="grp">${g}</span></button>`;
-  }));
+  Object.keys(GROUPS).forEach(g=>{
+    html+=`<details class="pg" data-g="${g}"><summary><span class="gl">${g}</span>Groupe ${g}<span class="cnt" data-cnt="${g}"></span><span class="chev">›</span></summary><div class="pg-body">`;
+    GROUPS[g].forEach(c=>{ html+=`<button class="tchip" data-t="${c}">${flag(c)}<span>${T[c].n}</span></button>`; });
+    html+='</div></details>';
+  });
   grid.innerHTML=html;
-  const n=sel.size;const b=document.getElementById('selCount');
-  b.style.display=n?'inline-block':'none';b.textContent=n;
+  syncPicker();
+}
+function syncPicker(){
+  document.querySelectorAll('#teamGrid .tchip').forEach(b=>b.classList.toggle('sel',sel.has(b.dataset.t)));
+  Object.keys(GROUPS).forEach(g=>{
+    const n=GROUPS[g].filter(c=>sel.has(c)).length;
+    const el=document.querySelector('[data-cnt="'+g+'"]');
+    if(el){el.textContent=n;el.classList.toggle('show',n>0);}
+  });
+  const n=sel.size,b=document.getElementById('selCount');
+  if(b){b.style.display=n?'inline-block':'none';b.textContent=n;}
 }
 
 /* ---------- Rendu principal ---------- */
@@ -574,10 +730,11 @@ function render(){
   if(view==='date') m.innerHTML=viewDate();
   else if(view==='group') m.innerHTML=viewGroup();
   else if(view==='ko') m.innerHTML=viewKO();
+  else if(view==='game') m.innerHTML=viewGame();
   else m.innerHTML=viewMy();
   document.getElementById('clockLbl').textContent=gmtLabel();
-  renderPicker();
-  if(view==='date'){const t=document.getElementById('day-'+dayKey(nowMs()));}
+  syncPicker();
+  renderDock();
 }
 
 /* ---------- Horloge ---------- */
@@ -686,6 +843,150 @@ async function updateResults(auto=false,full=false){
   }
 }
 
+/* ---------- Où regarder (diffuseurs officiels / légaux) ---------- */
+const WATCH={
+  OFFICIAL:{name:'FIFA — Match Centre officiel',url:'https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures'},
+  BROADCASTERS:{
+    FR:{name:'TF1 / M6 · beIN Sports (France)',url:'https://www.tf1.fr/sport'},
+    CA_FR:{name:'RDS (Canada, FR)',url:'https://www.rds.ca/soccer'},
+    CA_EN:{name:'TSN (Canada, EN)',url:'https://www.tsn.ca/soccer/fifa-world-cup'},
+    US_EN:{name:'FOX / FS1 (USA, EN)',url:'https://www.foxsports.com/soccer/fifa-world-cup'},
+    US_ES:{name:'Telemundo / Peacock (USA, ES)',url:'https://www.telemundodeportes.com/'},
+    UK:{name:'BBC / ITV (Royaume-Uni)',url:'https://www.bbc.co.uk/sport/football/world-cup'},
+    DE:{name:'ARD / ZDF (Allemagne)',url:'https://www.sportschau.de/fussball'},
+    ES:{name:'RTVE / Mediaset (Espagne)',url:'https://www.rtve.es/deportes/futbol/'},
+    MX:{name:'ViX / TUDN · TV Azteca (Mexique)',url:'https://www.tudn.com/futbol/copa-mundial'},
+    BR:{name:'Globo · CazéTV (Brésil)',url:'https://ge.globo.com/futebol/copa-do-mundo/'}
+  }
+};
+const REGIONS=[['','📺 Où regarder…'],['FR','France'],['CA_FR','Canada (FR)'],['CA_EN','Canada (EN)'],['US_EN','USA (EN)'],['US_ES','USA (ES)'],['UK','Royaume-Uni'],['DE','Allemagne'],['ES','Espagne'],['MX','Mexique'],['BR','Brésil']];
+function watchLink(){return region&&WATCH.BROADCASTERS[region]?WATCH.BROADCASTERS[region]:WATCH.OFFICIAL;}
+function watchHTML(m){const w=watchLink();return `<a class="watch" href="${w.url}" target="_blank" rel="noopener noreferrer" title="Où regarder (officiel) : ${esc(w.name)}">Où regarder ↗</a>`;}
+
+/* ---------- Dock : matchs épinglés, collés en bas de l'écran ---------- */
+function togglePin(no){no=+no; if(pins.has(no))pins.delete(no); else pins.add(no); saveState(); render();}
+function fmtCountdown(ms){const s=Math.max(0,Math.floor(ms/1000));const d=Math.floor(s/86400),h=Math.floor(s%86400/3600),mi=Math.floor(s%3600/60),se=s%60;
+  if(d>0)return d+' j '+h+' h'; if(h>0)return h+' h '+String(mi).padStart(2,'0'); return mi+':'+String(se).padStart(2,'0');}
+function dockCard(m){
+  return `<div class="dock-m" data-no="${m.no}">
+    <button class="dock-x" data-pin="${m.no}" title="Détacher" aria-label="Détacher">✕</button>
+    <div class="dock-meta"><span class="dk-cd mono"></span><span class="dock-grp">Groupe ${m.g} · ${esc(m.city)}</span></div>
+    <div class="dock-teams">
+      <div class="dock-tr">${flag(m.h)}<span class="nm">${T[m.h].n}</span><span class="dk-h sc mono"></span></div>
+      <div class="dock-tr">${flag(m.a)}<span class="nm">${T[m.a].n}</span><span class="dk-a sc mono"></span></div>
+    </div></div>`;
+}
+function renderDock(){
+  const d=document.getElementById('dock');
+  const list=[...pins].map(no=>MATCHES.find(x=>x.no===no)).filter(Boolean).sort((a,b)=>a.utc-b.utc);
+  if(!list.length){d.classList.remove('show');d.innerHTML='';document.body.classList.remove('has-dock');return;}
+  d.innerHTML='<div class="wrap dock-in">'+list.map(dockCard).join('')+'</div>';
+  d.classList.add('show');document.body.classList.add('has-dock');
+  tickDock();
+}
+function tickDock(){
+  const now=nowMs();
+  document.querySelectorAll('#dock .dock-m').forEach(el=>{
+    const m=MATCHES.find(x=>x.no===+el.dataset.no); if(!m)return;
+    const played=m.hs!=null, st=status(m), cd=el.querySelector('.dk-cd');
+    if(m.utc>now){cd.textContent='Dans '+fmtCountdown(m.utc-now)+' · '+fmtT(m.utc);cd.className='dk-cd mono up';}
+    else{cd.textContent=(st.cls==='live'?'● Direct':(st.cls==='ft'?'Terminé':'Coup d’envoi'))+' · '+fmtT(m.utc);cd.className='dk-cd mono '+(st.cls||'');}
+    el.querySelector('.dk-h').textContent=played?m.hs:'–';
+    el.querySelector('.dk-a').textContent=played?m.as:'–';
+  });
+}
+
+/* ---------- Jeux : pronostics + équipe favorite + champion (notation auto) ---------- */
+function predLock(m){return m.utc<=nowMs();}
+function scoreLine(ph,pa,m){
+  if(ph==null||pa==null||m.hs==null) return null;
+  if(ph===m.hs&&pa===m.as) return 5;
+  if((ph-pa)===(m.hs-m.as)) return 3;
+  if(Math.sign(ph-pa)===Math.sign(m.hs-m.as)) return 1;
+  return 0;
+}
+function scoreEntry(e){
+  let pts=0,exact=0,done=0;
+  const preds=e.preds||{};
+  for(const no in preds){
+    const m=MATCHES.find(x=>x.no===+no); if(!m||m.hs==null) continue;
+    const v=scoreLine(preds[no][0],preds[no][1],m); if(v==null) continue;
+    done++; pts+=v; if(v===5) exact++;
+  }
+  let favPts=0;
+  if(e.fav) MATCHES.filter(m=>m.stage==='G'&&m.hs!=null&&(m.h===e.fav||m.a===e.fav)).forEach(m=>{
+    const gf=m.h===e.fav?m.hs:m.as, ga=m.h===e.fav?m.as:m.hs; favPts+=gf>ga?3:(gf===ga?1:0);
+  });
+  return {pts:pts+favPts,predPts:pts,favPts,exact,done};
+}
+function encodeEntry(e){return btoa(unescape(encodeURIComponent(JSON.stringify({n:e.n,f:e.fav,c:e.champ,p:e.preds}))));}
+function decodeEntry(code){const o=JSON.parse(decodeURIComponent(escape(atob(code.trim().replace(/\s+/g,'')))));return {n:(o.n||'Anonyme').slice(0,24),fav:o.f||'',champ:o.c||'',preds:o.p||{}};}
+function teamOptions(seld){return '<option value="">—</option>'+Object.keys(GROUPS).map(g=>GROUPS[g].map(c=>`<option value="${c}"${seld===c?' selected':''}>${T[c].n} (Gr. ${g})</option>`).join('')).join('');}
+function syncCodeBox(){const el=document.getElementById('gMyCode'); if(el) el.value=me.n?encodeEntry(me):'';}
+function loadRoster(){
+  const el=document.getElementById('gPaste'); if(!el) return;
+  const lines=el.value.split(/[\s,]+/).map(s=>s.trim()).filter(Boolean);
+  let ok=0; const out=[];
+  lines.forEach(code=>{ try{ const e=decodeEntry(code); if(e&&e.n){out.push(e);ok++;} }catch(_){} });
+  const seen=new Set(me.n?[norm(me.n)]:[]); const dedup=[];
+  out.forEach(e=>{const k=norm(e.n); if(seen.has(k)) return; seen.add(k); dedup.push(e);});
+  roster=dedup; saveState(); render();
+  toast(ok?('Importé · '+dedup.length+' joueur'+(dedup.length>1?'s':'')):'Aucun code valide trouvé');
+}
+function viewGame(){
+  const upcoming=MATCHES.filter(m=>!predLock(m)).sort((a,b)=>a.utc-b.utc).slice(0,12);
+  const myScore=scoreEntry(me);
+  const entries=[]; if(me.n) entries.push(Object.assign({_me:true},me));
+  roster.forEach(r=>{ if(!(me.n&&norm(r.n)===norm(me.n))) entries.push(r); });
+  const lb=entries.map(e=>({e,s:scoreEntry(e)})).sort((a,b)=>b.s.pts-a.s.pts||b.s.exact-a.s.exact);
+
+  let h=`<p class="game-intro">Défi pronostics entre amis — <b>100 % gratuit, sans compte</b>. Prédisez les scores, choisissez une équipe favorite et le futur champion : la notation est <b>automatique</b> à partir des vrais résultats. Partagez votre code, importez ceux des amis, le classement se met à jour en direct.</p>`;
+  h+=`<p class="hintline">Barème — score exact = <b>5 pts</b> · bonne différence = <b>3</b> · bon vainqueur = <b>1</b>. Équipe favorite : +3 par victoire, +1 par nul (phase de groupes).</p>`;
+  h+=`<div class="gsec"><div class="gsec-h"><span class="step">1</span>Mon profil</div><div class="gsec-b">
+    <div class="field"><label>Pseudo</label><input class="inp" id="gName" maxlength="24" placeholder="Ton nom de joueur" value="${esc(me.n)}"></div>
+    <div class="two">
+      <div class="field"><label>★ Équipe favorite</label><select class="inp" id="gFav">${teamOptions(me.fav)}</select></div>
+      <div class="field"><label>🏆 Champion 2026</label><select class="inp" id="gChamp">${teamOptions(me.champ)}</select></div>
+    </div></div></div>`;
+  h+=`<div class="gsec"><div class="gsec-h"><span class="step">2</span>Mes pronostics<span class="muted" style="margin-left:auto;font-weight:700">${myScore.done} notés · ${myScore.predPts} pts</span></div><div class="gsec-b">`;
+  if(!upcoming.length) h+='<p class="muted">Aucun match à venir ouvert aux pronostics pour l’instant.</p>';
+  upcoming.forEach(m=>{
+    const pr=me.preds[m.no]||[null,null], locked=predLock(m);
+    h+=`<div class="pred${locked?' lock':''}" data-pred="${m.no}">
+      <div class="pinfo"><div class="pteams">
+        <div class="ptr">${fmini(m.h)} ${T[m.h].n}</div>
+        <div class="ptr">${fmini(m.a)} ${T[m.a].n}</div>
+      </div><div class="pmeta">${fmtDay(m.utc)} · ${fmtT(m.utc)} · Gr. ${m.g}${locked?' · verrouillé':''}</div></div>
+      <div class="pin2">
+        <input class="scin" data-sc="h" inputmode="numeric" maxlength="2" value="${pr[0]??''}"${locked?' disabled':''}>
+        <span>:</span>
+        <input class="scin" data-sc="a" inputmode="numeric" maxlength="2" value="${pr[1]??''}"${locked?' disabled':''}>
+      </div></div>`;
+  });
+  h+=`</div></div>`;
+  h+=`<div class="gsec"><div class="gsec-h"><span class="step">3</span>Mon code à partager</div><div class="gsec-b">
+    <p class="hintline">Génère ton code et envoie-le à tes amis (WhatsApp, etc.). Il contient ton pseudo et tes choix — aucun e-mail, aucun serveur.</p>
+    <div class="codebox"><textarea class="inp" id="gMyCode" readonly placeholder="Clique sur « Générer mon code »">${me.n?encodeEntry(me):''}</textarea></div>
+    <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"><button class="btn" id="gGen">Générer / actualiser mon code</button><button class="btn ghost" id="gCopy">Copier</button></div>
+    </div></div>`;
+  h+=`<div class="gsec"><div class="gsec-h"><span class="step">4</span>Classement en direct</div><div class="gsec-b">
+    <p class="hintline">Colle les codes de tes amis (un par ligne) puis « Charger ». Ton profil est inclus automatiquement et tout se recalcule à chaque score.</p>
+    <div class="codebox"><textarea class="inp" id="gPaste" placeholder="Colle les codes de tes amis, un par ligne…"></textarea></div>
+    <div style="display:flex;gap:8px;margin:8px 0 14px;flex-wrap:wrap"><button class="btn" id="gLoad">Charger les amis</button><button class="btn ghost" id="gClearRoster">Vider la liste</button></div>`;
+  if(lb.length){
+    h+=`<table class="lb"><thead><tr><th>#</th><th>Joueur</th><th class="r">Exacts</th><th class="r">Notés</th><th class="r">Points</th></tr></thead><tbody>`;
+    lb.forEach((row,i)=>{
+      const e=row.e,s=row.s;
+      const fav=e.fav?` · ★ ${T[e.fav]?T[e.fav].n:'?'}`:'';
+      const champ=e.champ?` · 🏆 ${T[e.champ]?T[e.champ].n:'?'}`:'';
+      h+=`<tr class="${e._me?'me':''}"><td class="rk">${i+1}</td><td><span class="who">${esc(e.n||'Anonyme')}</span><span class="sub">${fav}${champ}</span></td><td class="r">${s.exact}</td><td class="r">${s.done}</td><td class="r pts">${s.pts}</td></tr>`;
+    });
+    h+='</tbody></table>';
+  }else h+='<p class="muted">Renseigne ton pseudo (étape 1) et/ou importe des codes pour faire apparaître le classement.</p>';
+  h+=`</div></div>`;
+  return h;
+}
+
 /* ---------- Init ---------- */
 function buildTZ(){
   const s=document.getElementById('tz');let html='';
@@ -696,6 +997,11 @@ function buildTZ(){
   s.value=String(offset);
 }
 function gmtFromOff(o){const s=o>=0?'+':'−';const a=Math.abs(o);return 'GMT'+s+(a/60);}
+function buildRegion(){
+  const s=document.getElementById('region');
+  s.innerHTML=REGIONS.map(([v,l])=>`<option value="${v}">${l}</option>`).join('');
+  s.value=region;
+}
 
 function attach(){
   document.getElementById('tz').addEventListener('change',e=>{offset=parseInt(e.target.value,10);render();tickClock();saveState();});
@@ -705,23 +1011,61 @@ function attach(){
     document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));t.classList.add('on');
     view=t.dataset.v;render();window.scrollTo({top:0,behavior:'instant'});
   });
+  document.getElementById('region').addEventListener('change',e=>{region=e.target.value;saveState();render();});
   document.getElementById('pickBtn').addEventListener('click',()=>document.getElementById('picker').classList.toggle('open'));
   document.getElementById('clearSel').addEventListener('click',()=>{sel.clear();render();saveState();});
   document.getElementById('teamGrid').addEventListener('click',e=>{
     const c=e.target.closest('.tchip');if(!c)return;const code=c.dataset.t;
     sel.has(code)?sel.delete(code):sel.add(code);render();saveState();
   });
-  document.getElementById('main').addEventListener('click',e=>{
-    const r=e.target.closest('[data-rm]');if(r){sel.delete(r.dataset.rm);render();saveState();}
+
+  const main=document.getElementById('main');
+  // clics : retrait d'équipe, boutons des Jeux
+  main.addEventListener('click',e=>{
+    const r=e.target.closest('[data-rm]');
+    if(r){e.preventDefault();sel.delete(r.dataset.rm);myOpen.delete(r.dataset.rm);render();saveState();return;}
+    const id=e.target.id;
+    if(id==='gGen'){ if(!me.n){toast('Choisis d’abord un pseudo');return;} syncCodeBox();saveState();toast('Code prêt — copie-le et partage-le'); }
+    else if(id==='gCopy'){ const el=document.getElementById('gMyCode'); if(el&&el.value){(navigator.clipboard&&navigator.clipboard.writeText(el.value));el.select&&el.select();toast('Code copié');} else toast('Génère d’abord ton code'); }
+    else if(id==='gLoad'){ loadRoster(); }
+    else if(id==='gClearRoster'){ roster=[];saveState();render();toast('Liste vidée'); }
+  });
+  // saisies des Jeux (sans re-render pour garder le focus)
+  main.addEventListener('input',e=>{
+    const t=e.target;
+    if(t.id==='gName'){ me.n=t.value.trim(); saveState(); syncCodeBox(); }
+    else if(t.classList.contains('scin')){
+      const row=t.closest('[data-pred]'); if(!row) return; const no=+row.dataset.pred;
+      const v=t.value.replace(/[^0-9]/g,'').slice(0,2); if(v!==t.value) t.value=v;
+      const cur=me.preds[no]?me.preds[no].slice():[null,null];
+      const num=v===''?null:Math.min(30,parseInt(v,10));
+      if(t.dataset.sc==='h') cur[0]=num; else cur[1]=num;
+      if(cur[0]==null&&cur[1]==null) delete me.preds[no]; else me.preds[no]=cur;
+      saveState(); syncCodeBox();
+    }
+  });
+  main.addEventListener('change',e=>{
+    if(e.target.id==='gFav'){ me.fav=e.target.value;saveState();render(); }
+    else if(e.target.id==='gChamp'){ me.champ=e.target.value;saveState();render(); }
+  });
+  // mémorise les équipes dépliées dans « Mes équipes »
+  main.addEventListener('toggle',e=>{
+    const d=e.target; if(d.classList&&d.classList.contains('mt')){ d.open?myOpen.add(d.dataset.mt):myOpen.delete(d.dataset.mt); }
+  },true);
+  // épingler / détacher (cartes + dock)
+  document.addEventListener('click',e=>{
+    const p=e.target.closest('[data-pin]'); if(p){ e.preventDefault(); togglePin(p.dataset.pin); }
   });
 }
 
 (async function(){
   await loadState();
   buildTZ();
+  buildRegion();
+  buildPicker();
   attach();
   render();
-  tickClock();setInterval(tickClock,1000);
+  tickClock();setInterval(()=>{tickClock();tickDock();},1000);
   // aller au jour courant en vue date
   setTimeout(()=>{const el=document.getElementById('day-'+dayKey(nowMs()));if(el&&view==='date')el.scrollIntoView({block:'start',behavior:'smooth'});},250);
   // mise à jour automatique des scores (ESPN, gratuit) :
