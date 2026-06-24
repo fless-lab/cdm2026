@@ -3,7 +3,8 @@
    Source: https://digitalhub.fifa.com/m/636f5c9c6f29771f/original/FWC2026_regulations_EN.pdf
    Clé = 8 lettres de groupe qualifiées (3ᵉ) triées ; valeur = {groupe hôte: groupe du 3ᵉ}.
    Hôte→match : E=74, I=77, A=79, L=80, D=81, G=82, B=85, K=87.
-   Vérifiée : 495 lignes, contraintes de slots + bijection + non-même-groupe OK. */
+   Vérifiée : 495 lignes, contraintes de slots + bijection + non-même-groupe OK,
+   ET relue caractère par caractère contre le PDF officiel (3960 cellules, 0 écart). */
 const THIRD_PLACE_ALLOCATION = {
   "ABCDEFGH": {E:"C", I:"F", A:"H", L:"E", D:"B", G:"A", B:"G", K:"D"},
   "ABCDEFGI": {E:"D", I:"F", A:"C", L:"I", D:"B", G:"A", B:"G", K:"E"},
