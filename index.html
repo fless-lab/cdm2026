@@ -307,6 +307,8 @@ body.has-dock{padding-bottom:118px}
 .muted{color:var(--muted);font-size:12.5px}
 .hintline{font-size:12px;color:var(--soft);margin:2px 0 10px}
 /* Bracket résolu dynamiquement */
+.kobar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:4px 2px 2px}
+.kobar-note{font-size:12px;color:var(--soft)}
 .ko .side{display:flex;align-items:center;gap:7px}
 .ko .side.res{font-weight:600;color:var(--ink)}
 .ko .side .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -610,22 +612,46 @@ function standings(g){
 function groupPlayed(g){return MATCHES.filter(m=>m.g===g&&m.hs!=null&&m.as!=null).length;}
 function groupFinal(g){return groupPlayed(g)===6;} // 4 équipes = 6 matchs
 
-/* ---------- Résolution dynamique du bracket (1ᵉʳ/2ᵉ provisoires + vainqueurs) ---------- */
-function resolveBracket(){
-  const teams={}, res={};
-  function side(label){
+/* ---------- Affectation des meilleurs 3ᵉˢ (table FIFA officielle) ---------- */
+const HOST_NODE={E:74,I:77,A:79,L:80,D:81,G:82,B:85,K:87};   // groupe vainqueur → n° de match accueillant un 3ᵉ
+function computeThirds(){
+  // l'affectation n'est connue que lorsque les 8 troisièmes qualifiés le sont (12 groupes terminés)
+  if(!Object.keys(GROUPS).every(groupFinal)) return {};
+  const qualif=bestThirds().ranked.slice(0,8).map(t=>t.g);   // groupes des 8 meilleurs 3ᵉ
+  const row=THIRDS_TABLE[qualif.slice().sort().join('')];     // table FIFA : combo trié → {hôte: groupe du 3ᵉ}
+  if(!row) return {};
+  const map={};
+  Object.keys(row).forEach(host=>{ const n=HOST_NODE[host]; if(n) map[n]=row[host]; });
+  return map;                                                 // {n° de match: lettre du groupe du 3ᵉ}
+}
+
+/* ---------- Résolution dynamique du bracket (1ᵉʳ/2ᵉ provisoires + 3ᵉˢ + vainqueurs) ---------- */
+function resolveBracket(useOfficial){
+  if(useOfficial===undefined) useOfficial=true;
+  const teams={}, res={}, tmap=computeThirds();
+  function fromLabel(label){
     let mm=label.match(/Gr\. ([A-L])$/);
-    if(mm){ const g=mm[1]; if(groupPlayed(g)===0) return null;       // rien joué → affiche encore l'emplacement
+    if(mm){ const g=mm[1]; if(groupPlayed(g)===0) return null;
       const st=standings(g), row=/^2/.test(label)?st[1]:st[0];
-      return row?{code:row.c,prov:!groupFinal(g)}:null;              // provisoire tant que le groupe n'est pas fini
+      return row?{code:row.c,prov:!groupFinal(g)}:null;
     }
     if(mm=label.match(/^V(\d+)$/)){ const r=res[+mm[1]]; return r&&r.w?{code:r.w,prov:r.prov}:null; }
     if(/Perdant/.test(label)){ mm=label.match(/(\d+)/); const r=res[+mm[1]]; return r&&r.l?{code:r.l,prov:r.prov}:null; }
-    return null;                                                     // « 3ᵉ … » : nécessite la table FIFA (non implémentée)
+    return null;
+  }
+  function nodeSide(k,label){
+    if(/^3/.test(label)){                                     // emplacement « 3ᵉ … »
+      const g=tmap[k.no]; if(!g||groupPlayed(g)===0) return null;
+      const st=standings(g); return st[2]?{code:st[2].c,prov:!groupFinal(g)}:null;
+    }
+    return fromLabel(label);
   }
   for(let pass=0;pass<7;pass++){
     KO.forEach(k=>{
-      const h=side(k.h), a=side(k.a);
+      let h,a;
+      const off=useOfficial?koOfficial[k.no]:null;            // affiche officielle ESPN (prioritaire)
+      if(off){ h=off.h&&T[off.h]?{code:off.h,prov:false}:null; a=off.a&&T[off.a]?{code:off.a,prov:false}:null; }
+      else { h=nodeSide(k,k.h); a=nodeSide(k,k.a); }
       teams[k.no]={h,a};
       if(h&&a){
         const sc=koScores[pairKey(h.code,a.code)];
@@ -720,7 +746,10 @@ function koSideHTML(label,resolved,isWin,isLose,score){
 function viewKO(){
   const rb=resolveBracket();
   const cols=[['R32','Barrages (Tour de 32)','28 juin – 4 juil.'],['R16','8ᵉ de finale','4 – 7 juil.'],['QF','Quarts de finale','9 – 11 juil.'],['SF','Demi-finales','14 – 15 juil.'],['F','Finale','19 juil.']];
-  let html='<p class="kintro">Le bracket se remplit <b>dynamiquement</b> : dès qu’un match de poule est joué, les 1ᵉʳ/2ᵉ se placent (en <b>provisoire ●</b> tant que le groupe n’est pas terminé), puis les vainqueurs des matchs à élimination directe avancent automatiquement (scores et tirs au but via ESPN). Les emplacements « 3ᵉ … » attendent encore la table des meilleurs troisièmes.</p><div class="rounds">';
+  const tReady=Object.keys(THIRDS_TABLE).length>0;
+  let html='<p class="kintro">Le bracket se remplit <b>dynamiquement</b> : dès qu’un match de poule est joué, les 1ᵉʳ/2ᵉ se placent (en <b>provisoire ●</b> tant que le groupe n’est pas terminé), puis les vainqueurs des matchs à élimination directe avancent automatiquement (scores et tirs au but via ESPN). Les « 3ᵉ … » se calculent via la table FIFA'+(tReady?'':' <i>(en cours d’intégration)</i>')+', puis se calent sur les affiches officielles ESPN.</p>';
+  html+='<div class="kobar"><button class="btn ghost" id="koSync">↻ Mapper les affiches (ESPN)</button><span class="kobar-note">Synchronise les affiches officielles dès qu’elles sont publiées (corrige automatiquement les 3ᵉˢ).</span></div>';
+  html+='<div class="rounds">';
   cols.forEach(([r,title,win])=>{
     html+=`<div class="col"><h4>${title}<small>${win}</small></h4>`;
     let items=KO.filter(k=>k.r===r);
@@ -859,8 +888,13 @@ function ymd(ms){const d=new Date(ms);return d.getUTCFullYear()+String(d.getUTCM
 function dateList(fromMs,toMs){const out=[];for(let t=fromMs;t<=toMs+1;t+=86400000)out.push(ymd(t));return [...new Set(out)];}
 
 let koScores={};                                  // résultats de phase finale, indexés par paire d'équipes
+let koOfficial={};                                // affiches officielles ESPN par n° de match (prioritaires)
 const pairKey=(a,b)=>[a,b].sort().join('|');
-async function fetchScores(dates){
+/* Table FIFA des meilleurs 3ᵉˢ : clé = 8 lettres de groupe triées, valeur = {groupe hôte: groupe du 3ᵉ}.
+   Remplie plus bas (THIRDS_TABLE) ; vide tant que la table officielle n'est pas intégrée. */
+let THIRDS_TABLE={};
+async function fetchScores(dates,includePre){
+  const want=includePre?['pre','in','post']:['in','post'];
   const out=[];
   for(let i=0;i<dates.length;i+=6){                 // petits lots pour rester poli
     const batch=dates.slice(i,i+6);
@@ -870,7 +904,8 @@ async function fetchScores(dates){
       (s.value.events||[]).forEach(e=>{
         const comp=e.competitions&&e.competitions[0]; if(!comp||!comp.competitors) return;
         const state=e.status&&e.status.type&&e.status.type.state;   // 'pre' | 'in' | 'post'
-        if(state!=='in'&&state!=='post') return;                    // on ignore les matchs non commencés
+        if(want.indexOf(state)<0) return;                           // selon includePre
+        const pre=(state==='pre');
         let H,A,winner=null;
         comp.competitors.forEach(c=>{
           let code=c.team&&c.team.abbreviation;                     // ex: 'GER','CUW' = nos codes
@@ -879,8 +914,9 @@ async function fetchScores(dates){
           if(c.winner===true) winner=code;                          // ESPN marque le qualifié (gère les tirs au but)
           if(c.homeAway==='home')H=o; else A=o;
         });
-        if(!H||!A||!T[H.code]||!T[A.code]||isNaN(H.score)||isNaN(A.score)) return;
-        out.push({h:H.code,a:A.code,hs:H.score,as:A.score,st:state==='in'?'LIVE':'FT',winner:(winner&&T[winner])?winner:null});
+        if(!H||!A||!T[H.code]||!T[A.code]) return;
+        if(!pre&&(isNaN(H.score)||isNaN(A.score))) return;
+        out.push({h:H.code,a:A.code,hs:pre?null:H.score,as:pre?null:A.score,st:pre?'PRE':(state==='in'?'LIVE':'FT'),winner:(winner&&T[winner])?winner:null});
       });
     });
   }
@@ -889,6 +925,7 @@ async function fetchScores(dates){
 function mergeScores(arr){
   let n=0;
   arr.forEach(o=>{
+    if(o.hs==null) return;                                   // ignore les affiches non commencées (PRE)
     const m=MATCHES.find(x=>(x.h===o.h&&x.a===o.a)||(x.h===o.a&&x.a===o.h));
     if(m){
       const swap=(m.h!==o.h);
@@ -900,6 +937,29 @@ function mergeScores(arr){
     const k=pairKey(o.h,o.a), prev=koScores[k];
     if(!prev||prev.hs!==o.hs||prev.as!==o.as||prev.st!==o.st||prev.winner!==o.winner){
       koScores[k]={h:o.h,a:o.a,hs:o.hs,as:o.as,st:o.st,winner:o.winner||null}; n++;
+    }
+  });
+  return n;
+}
+/* Récupère les AFFICHES officielles des phases finales sur ESPN (équipes connues même avant le coup
+   d'envoi) et les rattache à chaque n° de match via un côté déjà déterminé par les groupes.
+   Sert de juge de paix : corrige automatiquement l'affectation des 3ᵉˢ une fois la FIFA passée. */
+async function syncKoOfficial(){
+  const koDates=dateList(Date.parse('2026-06-28T00:00Z'), Date.parse('2026-07-20T00:00Z'));
+  const fixtures=await fetchScores(koDates,true);              // inclut les matchs « pre »
+  if(!fixtures.length) return 0;
+  const base=resolveBracket(false).teams;                     // résolution SANS override, pour les côtés connus
+  let n=0;
+  fixtures.forEach(fx=>{
+    for(const k of KO){
+      const t=base[k.no]; if(!t) continue;
+      const known=[t.h&&t.h.code,t.a&&t.a.code].filter(Boolean);
+      if(!known.length) continue;
+      if(known.indexOf(fx.h)>=0||known.indexOf(fx.a)>=0){       // un côté connu correspond → c'est ce match
+        const cur=koOfficial[k.no];
+        if(!cur||cur.h!==fx.h||cur.a!==fx.a){ koOfficial[k.no]={h:fx.h,a:fx.a}; n++; }
+        break;
+      }
     }
   });
   return n;
@@ -922,6 +982,8 @@ async function updateResults(auto=false,full=false){
     }
     const arr=await fetchScores(dates);
     const n=mergeScores(arr);
+    // dès qu'on approche/atteint les phases finales, on récupère les affiches officielles (juge de paix 3ᵉˢ)
+    if(now>=Date.parse('2026-06-26T00:00Z')){ try{ await syncKoOfficial(); }catch(_){} }
     const live=MATCHES.some(m=>m.st==='LIVE');
     lastUpdate=new Date();
     const hh=String(lastUpdate.getHours()).padStart(2,'0'),mm=String(lastUpdate.getMinutes()).padStart(2,'0');
@@ -1124,6 +1186,9 @@ function attach(){
     else if(id==='gCopy'){ const el=document.getElementById('gMyCode'); if(el&&el.value){(navigator.clipboard&&navigator.clipboard.writeText(el.value));el.select&&el.select();toast('Code copié');} else toast('Génère d’abord ton code'); }
     else if(id==='gLoad'){ loadRoster(); }
     else if(id==='gClearRoster'){ roster=[];saveState();render();toast('Liste vidée'); }
+    else if(id==='koSync'){ e.target.disabled=true;e.target.textContent='Sync…';
+      syncKoOfficial().then(c=>{render();toast(c?('Affiches officielles mises à jour · '+c+' match'+(c>1?'s':'')):'Aucune affiche officielle publiée pour l’instant');})
+        .catch(()=>toast('Synchronisation impossible — réessaie plus tard')); }
   });
   // saisies des Jeux (sans re-render pour garder le focus)
   main.addEventListener('input',e=>{
