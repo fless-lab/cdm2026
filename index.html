@@ -395,6 +395,7 @@ body.has-dock{padding-bottom:118px}
 <div id="dock" aria-live="polite"></div>
 <div class="toast" id="toast"></div>
 
+<script src="thirds-table.js"></script>
 <script>
 /* ---------- Données ---------- */
 const T = {
@@ -890,9 +891,8 @@ function dateList(fromMs,toMs){const out=[];for(let t=fromMs;t<=toMs+1;t+=864000
 let koScores={};                                  // résultats de phase finale, indexés par paire d'équipes
 let koOfficial={};                                // affiches officielles ESPN par n° de match (prioritaires)
 const pairKey=(a,b)=>[a,b].sort().join('|');
-/* Table FIFA des meilleurs 3ᵉˢ : clé = 8 lettres de groupe triées, valeur = {groupe hôte: groupe du 3ᵉ}.
-   Remplie plus bas (THIRDS_TABLE) ; vide tant que la table officielle n'est pas intégrée. */
-let THIRDS_TABLE={};
+/* Table FIFA officielle des meilleurs 3ᵉˢ (495 combinaisons), chargée depuis thirds-table.js. */
+let THIRDS_TABLE=(typeof window!=='undefined'&&window.THIRD_PLACE_ALLOCATION)?window.THIRD_PLACE_ALLOCATION:{};
 async function fetchScores(dates,includePre){
   const want=includePre?['pre','in','post']:['in','post'];
   const out=[];
