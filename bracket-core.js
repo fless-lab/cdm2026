@@ -264,3 +264,115 @@ function simStepOnce(){
   return null;
 }
 function simReset(){ MATCHES.forEach(m=>{m.hs=null;m.as=null;m.st='';}); koScores={}; koOfficial={}; }
+
+/* ---- ESPN : résultats réels + affiches officielles ---- */
+const ESPN='https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates=';
+function ymd(ms){const d=new Date(ms);return d.getUTCFullYear()+String(d.getUTCMonth()+1).padStart(2,'0')+String(d.getUTCDate()).padStart(2,'0');}
+function dateList(fromMs,toMs){const out=[];for(let t=fromMs;t<=toMs+1;t+=86400000)out.push(ymd(t));return [...new Set(out)];}
+async function fetchScores(dates,includePre){
+  const want=includePre?['pre','in','post']:['in','post'];
+  const out=[];
+  for(let i=0;i<dates.length;i+=6){                 // petits lots pour rester poli
+    const batch=dates.slice(i,i+6);
+    const settled=await Promise.allSettled(batch.map(d=>fetch(ESPN+d).then(r=>r.ok?r.json():null)));
+    settled.forEach(s=>{
+      if(s.status!=='fulfilled'||!s.value) return;
+      (s.value.events||[]).forEach(e=>{
+        const comp=e.competitions&&e.competitions[0]; if(!comp||!comp.competitors) return;
+        const state=e.status&&e.status.type&&e.status.type.state;   // 'pre' | 'in' | 'post'
+        if(want.indexOf(state)<0) return;                           // selon includePre
+        const pre=(state==='pre');
+        let H,A,winner=null;
+        comp.competitors.forEach(c=>{
+          let code=c.team&&c.team.abbreviation;                     // ex: 'GER','CUW' = nos codes
+          if(!T[code]) code=toCode(c.team&&c.team.displayName);     // filet de sécurité par le nom
+          const o={code,score:parseInt(c.score,10)};
+          if(c.winner===true) winner=code;                          // ESPN marque le qualifié (gère les tirs au but)
+          if(c.homeAway==='home')H=o; else A=o;
+        });
+        if(!H||!A||!T[H.code]||!T[A.code]) return;
+        if(!pre&&(isNaN(H.score)||isNaN(A.score))) return;
+        out.push({h:H.code,a:A.code,hs:pre?null:H.score,as:pre?null:A.score,st:pre?'PRE':(state==='in'?'LIVE':'FT'),winner:(winner&&T[winner])?winner:null});
+      });
+    });
+  }
+  return out;
+}
+function mergeScores(arr){
+  let n=0;
+  arr.forEach(o=>{
+    if(o.hs==null) return;                                   // ignore les affiches non commencées (PRE)
+    const m=MATCHES.find(x=>(x.h===o.h&&x.a===o.a)||(x.h===o.a&&x.a===o.h));
+    if(m){
+      const swap=(m.h!==o.h);
+      const nh=swap?o.as:o.hs, na=swap?o.hs:o.as;
+      if(m.hs!==nh||m.as!==na||m.st!==o.st){m.hs=nh;m.as=na;m.st=o.st;n++;}
+      return;
+    }
+    // pas un match de poule → résultat de phase finale (indexé par paire d'équipes)
+    const k=pairKey(o.h,o.a), prev=koScores[k];
+    if(!prev||prev.hs!==o.hs||prev.as!==o.as||prev.st!==o.st||prev.winner!==o.winner){
+      koScores[k]={h:o.h,a:o.a,hs:o.hs,as:o.as,st:o.st,winner:o.winner||null}; n++;
+    }
+  });
+  return n;
+}
+/* Récupère les AFFICHES officielles des phases finales sur ESPN (équipes connues même avant le coup
+   d'envoi) et les rattache à chaque n° de match via un côté déjà déterminé par les groupes.
+   Sert de juge de paix : corrige automatiquement l'affectation des 3ᵉˢ une fois la FIFA passée. */
+async function syncKoOfficial(){
+  const koDates=dateList(Date.parse('2026-06-28T00:00Z'), Date.parse('2026-07-20T00:00Z'));
+  const fixtures=await fetchScores(koDates,true);              // inclut les matchs « pre »
+  if(!fixtures.length) return 0;
+  const base=resolveBracket(false).teams;                     // résolution SANS override, pour les côtés connus
+  let n=0;
+  fixtures.forEach(fx=>{
+    for(const k of KO){
+      const t=base[k.no]; if(!t) continue;
+      const known=[t.h&&t.h.code,t.a&&t.a.code].filter(Boolean);
+      if(!known.length) continue;
+      if(known.indexOf(fx.h)>=0||known.indexOf(fx.a)>=0){       // un côté connu correspond → c'est ce match
+        const cur=koOfficial[k.no];
+        if(!cur||cur.h!==fx.h||cur.a!==fx.a){ koOfficial[k.no]={h:fx.h,a:fx.a}; n++; }
+        break;
+      }
+    }
+  });
+  return n;
+}
+const NAME2CODE=(()=>{
+  const map={};
+  const add=(code,...names)=>names.forEach(x=>map[norm(x)]=code);
+  Object.keys(T).forEach(c=>add(c,T[c].n,c));
+  add('MEX','mexico','mexique');add('RSA','south africa','afrique du sud');add('KOR','south korea','korea republic','korea','corée du sud','south-korea');
+  add('CZE','czechia','czech republic','tchequie');add('CAN','canada');add('BIH','bosnia','bosnia and herzegovina','bosnie');add('QAT','qatar');add('SUI','switzerland','suisse');
+  add('BRA','brazil','bresil');add('MAR','morocco','maroc');add('HAI','haiti');add('SCO','scotland','ecosse');
+  add('USA','usa','united states','etats-unis','us');add('PAR','paraguay');add('AUS','australia','australie');add('TUR','turkiye','turkey','turquie','türkiye');
+  add('GER','germany','allemagne');add('CUW','curacao','curaçao');add('CIV','ivory coast','cote divoire','côte divoire','cote d ivoire');add('ECU','ecuador','equateur');
+  add('NED','netherlands','pays-bas','holland');add('JPN','japan','japon');add('SWE','sweden','suede');add('TUN','tunisia','tunisie');
+  add('BEL','belgium','belgique');add('EGY','egypt','egypte');add('IRN','iran','ir iran');add('NZL','new zealand','nouvelle-zelande');
+  add('ESP','spain','espagne');add('CPV','cape verde','cabo verde','cap-vert');add('KSA','saudi arabia','arabie saoudite','saudi');add('URU','uruguay');
+  add('FRA','france');add('SEN','senegal');add('IRQ','iraq','irak');add('NOR','norway','norvege');
+  add('ARG','argentina','argentine');add('ALG','algeria','algerie');add('AUT','austria','autriche');add('JOR','jordan','jordanie');
+  add('POR','portugal');add('COD','dr congo','democratic republic of congo','drc','rd congo','congo dr');add('UZB','uzbekistan','ouzbekistan');add('COL','colombia','colombie');
+  add('ENG','england','angleterre');add('CRO','croatia','croatie');add('GHA','ghana');add('PAN','panama');
+  return map;
+})();
+function norm(s){return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z ]/g,' ').replace(/\s+/g,' ').trim();}
+function toCode(name){return NAME2CODE[norm(name)]||null;}
+function snapshotReal(){return{
+  matches:MATCHES.map(m=>({no:m.no,hs:m.hs,as:m.as,st:m.st})),
+  koScores:JSON.parse(JSON.stringify(koScores)),
+  koOfficial:JSON.parse(JSON.stringify(koOfficial))
+};}
+function restoreReal(b){
+  b.matches.forEach(s=>{const m=MATCHES.find(x=>x.no===s.no); m.hs=s.hs;m.as=s.as;m.st=s.st;});
+  koScores=b.koScores; koOfficial=b.koOfficial;
+}
+
+async function loadReal(){
+  // récupère les vrais résultats déjà connus (poules + élim. directe) — ne simule rien
+  const dates=dateList(Date.parse('2026-06-11T00:00Z'), Date.now()+86400000);
+  try{ mergeScores(await fetchScores(dates)); }catch(e){}
+  try{ await syncKoOfficial(); }catch(e){}
+}

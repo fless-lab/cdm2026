@@ -99,34 +99,43 @@ footer{color:var(--soft);font-size:12px;text-align:center;padding:24px 18px 50px
     <button class="btn ghost" id="reset">Réinitialiser</button>
     <span class="simmsg" id="simmsg"></span>
   </div>
-  <p class="intro">Appuie sur le bouton : tout le tournoi se déroule automatiquement (poules, puis tableau à élimination directe avec la table FIFA officielle des meilleurs 3ᵉˢ et les tirs au but), jusqu'à désigner le champion. Chaque clic rejoue un scénario différent. Partage le lien : <b>fless-lab.github.io/cdm2026/simu</b></p>
+  <p class="intro">La simulation <b>garde les vrais résultats déjà connus</b> (matchs joués) et ne <b>simule que les matchs restants</b>, jusqu'à désigner le champion — avec la table FIFA officielle des meilleurs 3ᵉˢ et les tirs au but. Chaque clic rejoue un scénario différent à partir d'aujourd'hui. Partage le lien : <b>fless-lab.github.io/cdm2026/simu</b></p>
   <div class="champ" id="champ"></div>
   <div id="bracket"></div>
 </div>
-<footer>Simulation ludique — résultats aléatoires, sans valeur de pronostic. Affectation des 3ᵉˢ : table FIFA officielle (Annexe C).</footer>
+<footer>Simulation ludique — les matchs à venir sont tirés au hasard, sans valeur de pronostic. Résultats réels via ESPN · affectation des 3ᵉˢ : table FIFA officielle (Annexe C).</footer>
 <script src="../thirds-table.js"></script>
 <script src="../bracket-core.js"></script>
 <script>
-simReset();
 const bracketEl=document.getElementById('bracket');
 const runBtn=document.getElementById('run'),resetBtn=document.getElementById('reset'),msg=document.getElementById('simmsg'),champ=document.getElementById('champ');
 function render(){bracketEl.innerHTML=bracketTreeHTML(resolveBracket());}
-render();
-let timer=null,running=false;
+let realSnap=null, ready=false, timer=null, running=false;
+function restoreRealState(){ if(realSnap) restoreReal(realSnap); }
+async function init(){
+  render();                                   // emplacements
+  runBtn.disabled=true; msg.textContent='Chargement des vrais résultats…';
+  await loadReal();                           // résultats déjà connus (poules + élim. directe)
+  realSnap=snapshotReal();                    // mémorise l'état réel d'aujourd'hui
+  ready=true; runBtn.disabled=false; msg.textContent=''; render();
+}
 function finish(){
-  running=false; runBtn.disabled=false; runBtn.textContent='▶ Relancer';
+  running=false; runBtn.disabled=false; runBtn.textContent='▶ Relancer un scénario';
   const w=(resolveBracket().res[104]||{}).w;
   if(w){ champ.style.display='flex'; champ.innerHTML='<span class="ce">🏆</span><span><span class="ct">Champion du monde 2026 (simulé)</span><span class="cn">'+T[w].n+'</span></span>'; msg.textContent=''; }
 }
 function run(){
-  if(running) return; running=true; champ.style.display='none';
-  runBtn.disabled=true; msg.textContent='Simulation en cours…';
+  if(running||!ready) return;
+  restoreRealState();                         // repart des vrais résultats (matchs joués intacts)
+  running=true; champ.style.display='none';
+  runBtn.disabled=true; msg.textContent='Simulation des matchs restants…';
   const step=()=>{ const ph=simStepOnce(); render(); if(ph){ timer=setTimeout(step, ph==='group'?110:520); } else finish(); };
   step();
 }
-function reset(){ if(timer){clearTimeout(timer);timer=null;} running=false; simReset(); render(); msg.textContent=''; champ.style.display='none'; runBtn.disabled=false; runBtn.textContent='▶ Lancer la simulation'; }
+function reset(){ if(timer){clearTimeout(timer);timer=null;} running=false; restoreRealState(); render(); msg.textContent=''; champ.style.display='none'; runBtn.disabled=false; runBtn.textContent='▶ Lancer la simulation'; }
 runBtn.addEventListener('click',run);
 resetBtn.addEventListener('click',reset);
+init();
 </script>
 </body>
 </html>
