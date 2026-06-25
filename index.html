@@ -181,11 +181,13 @@ table{width:100%;border-collapse:collapse;font-size:13px}
 
 /* Knockout */
 .kintro{margin:16px 0 6px;color:var(--muted);font-size:13.5px;max-width:62ch}
-.rounds{display:flex;gap:14px;overflow-x:auto;padding:14px 2px 20px;scroll-snap-type:x proximity}
-.col{flex:0 0 230px;scroll-snap-align:start;display:flex;flex-direction:column;gap:10px;justify-content:space-around}
-.col h4{margin:0 0 2px;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-.col h4 small{display:block;color:var(--soft);font-weight:600;letter-spacing:.02em;text-transform:none;margin-top:2px}
-.ko{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:10px 11px;box-shadow:var(--shadow)}
+.rounds{padding:10px 0 12px}
+.kround{margin-top:18px}
+.kround:first-child{margin-top:6px}
+.kround h4{margin:0 0 10px 2px;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);display:flex;align-items:baseline;gap:8px}
+.kround h4 small{color:var(--soft);font-weight:600;letter-spacing:.02em;text-transform:none}
+.kogrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(212px,1fr));gap:10px}
+.ko{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:10px 12px;box-shadow:var(--shadow)}
 .ko .no{font-size:10px;color:var(--soft);font-weight:700;margin-bottom:5px}
 .ko .side{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;padding:3px 0}
 .ko .side.sm{color:var(--muted);font-weight:500}
@@ -767,7 +769,7 @@ function viewKO(){
   html+='<div class="kobar"><button class="btn ghost" id="koSync">↻ Mapper les affiches (ESPN)</button><span class="kobar-note">Synchronise les affiches officielles dès qu’elles sont publiées (corrige automatiquement les 3ᵉˢ).</span></div>';
   html+='<div class="rounds">';
   cols.forEach(([r,title,win])=>{
-    html+=`<div class="col"><h4>${title}<small>${win}</small></h4>`;
+    html+=`<div class="kround"><h4>${title}<small>${win}</small></h4><div class="kogrid">`;
     let items=KO.filter(k=>k.r===r);
     if(r==='F'){items=KO.filter(k=>k.r==='F'||k.r==='3P');}
     items.forEach(k=>{
@@ -781,7 +783,7 @@ function viewKO(){
         ${koSideHTML(k.a,t.a,aWin,aLose,res?res.as:null)}
       </div>`;
     });
-    html+='</div>';
+    html+='</div></div>';
   });
   html+='</div>';
   // meilleurs troisièmes (dynamique)
