@@ -216,9 +216,13 @@ table{width:100%;border-collapse:collapse;font-size:13px}
 .trow.w .tn{color:var(--green-d);font-weight:800}
 .trow.prov .tn{font-style:italic}
 .trow .ts{margin-left:auto;font-weight:800;font-variant-numeric:tabular-nums;padding-left:4px}
-.tcenter{display:flex;flex-direction:column;justify-content:center;align-items:stretch;flex:0 0 178px;padding:0 12px;gap:6px}
+.tcenter{position:relative;display:flex;flex-direction:column;justify-content:center;align-items:stretch;flex:0 0 184px;padding:0 12px}
 .tcenter .tch{flex:0 0 auto}
-.trophy{font-size:40px;text-align:center;line-height:1;margin:2px 0}
+.tfinal{display:flex;flex-direction:column;gap:5px}
+.trophy{font-size:38px;text-align:center;line-height:1;margin:0 0 2px}
+.tthird{position:absolute;left:12px;right:12px;bottom:2px}
+.tthird .tch{margin-bottom:4px}
+.tthird .tcard{background:#FBFAF6}
 .tside.l .tcol:not(.sf) .tmatches .tmatch::after{content:"";position:absolute;box-sizing:border-box;left:100%;width:9px;border-right:2px solid var(--line)}
 .tside.l .tcol:not(.sf) .tmatches .tmatch:nth-child(odd)::after{top:50%;height:50%;border-bottom:2px solid var(--line)}
 .tside.l .tcol:not(.sf) .tmatches .tmatch:nth-child(even)::after{top:0;height:50%;border-top:2px solid var(--line)}
@@ -820,7 +824,10 @@ function viewKO(){
   html+='<div class="brackhint">Arbre complet jusqu’à la finale — faites défiler horizontalement si besoin →</div>';
   html+='<div class="bracket-scroll"><div class="tree">';
   html+='<div class="tside l">'+Lcols.map(bcol).join('')+'</div>';
-  html+='<div class="tcenter"><div class="tch">Finale · 19 juil.</div>'+bcard(104)+'<div class="trophy">🏆</div><div class="tch">3ᵉ place</div>'+bcard(103)+'</div>';
+  html+='<div class="tcenter">'
+    +'<div class="tfinal"><div class="tch">Finale · 19 juil.</div><div class="trophy">🏆</div>'+bcard(104)+'</div>'
+    +'<div class="tthird"><div class="tch">Match pour la 3ᵉ place</div>'+bcard(103)+'</div>'
+    +'</div>';
   html+='<div class="tside r">'+Rcols.map(bcol).join('')+'</div>';
   html+='</div></div>';
   // meilleurs troisièmes (dynamique)
