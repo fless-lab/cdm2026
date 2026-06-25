@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulateur Coupe du Monde 2026 — déroule tout le tournoi</title>
+<meta name="description" content="Simulateur interactif de la Coupe du Monde 2026 : appuyez sur un bouton et regardez tout le tableau à élimination directe se remplir jusqu'au champion (table FIFA officielle des 3ᵉˢ).">
+<link rel="canonical" href="https://fless-lab.github.io/cdm2026/simu/">
+<meta property="og:title" content="Simulateur Coupe du Monde 2026">
+<meta property="og:description" content="Appuie sur un bouton et regarde tout le tournoi se dérouler jusqu'au champion.">
+<meta property="og:image" content="https://fless-lab.github.io/cdm2026/og.png">
+<meta property="og:url" content="https://fless-lab.github.io/cdm2026/simu/">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F4F3EE; --card:#FFFFFF; --line:#E6E4DA; --line2:#EFEDE5;
+  --ink:#191B1F; --muted:#6E727A; --soft:#9CA0A8;
+  --green:#0E7C5A; --green-d:#0A5E45; --green-bg:#E7F3EE;
+  --gold:#B7820F; --gold-bg:#FBF2D9; --gold-line:#E8C766;
+  --live:#D64545; --live-bg:#FBE9E9;
+  --shadow:0 1px 2px rgba(20,22,28,.04), 0 4px 16px rgba(20,22,28,.05);
+  --r:14px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;font-size:15px;-webkit-font-smoothing:antialiased}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums}
+.wrap{max-width:1280px;margin:0 auto;padding:0 18px}
+a{color:var(--green-d)}
+header{background:var(--card);border-bottom:1px solid var(--line)}
+.hbar{display:flex;align-items:center;gap:16px;padding:14px 0;flex-wrap:wrap}
+.brand b{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:22px;letter-spacing:-.02em;display:block}
+.brand span{font-size:11.5px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.back{margin-left:auto;font-size:13px;font-weight:700;text-decoration:none;border:1px solid var(--line);background:var(--card);border-radius:10px;padding:8px 12px;color:var(--ink)}
+.btn{border:1px solid var(--green);background:var(--green);color:#fff;border-radius:11px;padding:11px 18px;font-size:15px;font-weight:800;font-family:inherit;cursor:pointer;transition:filter .15s,transform .05s}
+.btn:hover{filter:brightness(1.06)}
+.btn:active{transform:translateY(1px)}
+.btn[disabled]{opacity:.55;cursor:default;filter:none}
+.btn.ghost{background:var(--card);color:var(--ink);border-color:var(--line);font-size:13px;font-weight:700;padding:10px 14px}
+.simbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:18px 0 6px}
+.simmsg{font-size:13px;color:var(--muted);font-weight:600}
+.intro{color:var(--muted);font-size:14px;max-width:70ch;margin:2px 0 0}
+.champ{display:none;align-items:center;gap:14px;background:linear-gradient(90deg,var(--gold-bg),#fff);border:1px solid var(--gold-line);border-radius:14px;padding:14px 20px;margin:14px 0 2px;box-shadow:var(--shadow)}
+.champ .ct{font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--gold);display:block}
+.champ .cn{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:26px}
+.champ .ce{font-size:34px}
+.flag{width:24px;height:18px;border-radius:3px;object-fit:cover;box-shadow:0 0 0 1px rgba(0,0,0,.07) inset;background:#eee;flex:none;display:block}
+.fmini{width:18px;height:13px;border-radius:2px;object-fit:cover;box-shadow:0 0 0 1px rgba(0,0,0,.07) inset;flex:none}
+footer{color:var(--soft);font-size:12px;text-align:center;padding:24px 18px 50px;line-height:1.6}
+/* Bracket en arbre (deux côtés vers la finale au centre) */
+.brackhint{font-size:11.5px;color:var(--soft);margin:6px 2px}
+.bracket-scroll{overflow-x:auto;padding:4px 0 14px;-webkit-overflow-scrolling:touch}
+.tree{display:flex;align-items:stretch;justify-content:center;min-width:max-content;min-height:600px}
+.tside{display:flex}
+.tcol{display:flex;flex-direction:column;flex:0 0 152px;padding:0 9px}
+.tcol.r32{flex-basis:172px}
+.tch{flex:0 0 30px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);text-align:center}
+.tmatches{flex:1 1 auto;display:flex;flex-direction:column}
+.tmatch{flex:1 1 0;display:flex;flex-direction:column;justify-content:center;position:relative}
+.tcard{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:5px 8px;box-shadow:var(--shadow)}
+.tcard.final{border-color:var(--gold-line);background:#FFFDF6}
+.tcard.live{border-color:var(--live)}
+.tno{font-size:9px;color:var(--soft);font-weight:700;margin-bottom:2px}
+.trow{display:flex;align-items:center;gap:6px;padding:2px 0;font-size:12px;font-weight:600;min-width:0}
+.trow .tn{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
+.trow.ph{color:var(--muted);font-weight:500;font-size:10.5px}
+.trow.w .tn{color:var(--green-d);font-weight:800}
+.trow.prov .tn{font-style:italic}
+.trow .ts{margin-left:auto;font-weight:800;font-variant-numeric:tabular-nums;padding-left:4px}
+.tcenter{position:relative;display:flex;flex-direction:column;justify-content:center;align-items:stretch;flex:0 0 184px;padding:0 12px}
+.tcenter .tch{flex:0 0 auto}
+.tfinal{display:flex;flex-direction:column;gap:5px}
+.trophy{font-size:38px;text-align:center;line-height:1;margin:0 0 2px}
+.tthird{position:absolute;left:12px;right:12px;bottom:2px}
+.tthird .tch{margin-bottom:4px}
+.tthird .tcard{background:#FBFAF6}
+.tside.l .tcol:not(.sf) .tmatches .tmatch::after{content:"";position:absolute;box-sizing:border-box;left:100%;width:9px;border-right:2px solid var(--line)}
+.tside.l .tcol:not(.sf) .tmatches .tmatch:nth-child(odd)::after{top:50%;height:50%;border-bottom:2px solid var(--line)}
+.tside.l .tcol:not(.sf) .tmatches .tmatch:nth-child(even)::after{top:0;height:50%;border-top:2px solid var(--line)}
+.tside.l .tcol:not(.r32) .tmatches .tmatch::before{content:"";position:absolute;right:100%;top:50%;width:9px;height:2px;background:var(--line)}
+.tside.l .tcol.sf .tmatches .tmatch::after{content:"";position:absolute;left:100%;top:50%;width:21px;height:2px;background:var(--line)}
+.tside.r .tcol:not(.sf) .tmatches .tmatch::after{content:"";position:absolute;box-sizing:border-box;right:100%;width:9px;border-left:2px solid var(--line)}
+.tside.r .tcol:not(.sf) .tmatches .tmatch:nth-child(odd)::after{top:50%;height:50%;border-bottom:2px solid var(--line)}
+.tside.r .tcol:not(.sf) .tmatches .tmatch:nth-child(even)::after{top:0;height:50%;border-top:2px solid var(--line)}
+.tside.r .tcol:not(.r32) .tmatches .tmatch::before{content:"";position:absolute;left:100%;top:50%;width:9px;height:2px;background:var(--line)}
+.tside.r .tcol.sf .tmatches .tmatch::after{content:"";position:absolute;right:100%;top:50%;width:21px;height:2px;background:var(--line)}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header><div class="wrap hbar">
+  <div class="brand"><b>Simulateur · Coupe du Monde 2026</b><span>Canada · Mexique · États-Unis</span></div>
+  <a class="back" href="../">← Calendrier complet</a>
+</div></header>
+<div class="wrap">
+  <div class="simbar">
+    <button class="btn" id="run">▶ Lancer la simulation</button>
+    <button class="btn ghost" id="reset">Réinitialiser</button>
+    <span class="simmsg" id="simmsg"></span>
+  </div>
+  <p class="intro">Appuie sur le bouton : tout le tournoi se déroule automatiquement (poules, puis tableau à élimination directe avec la table FIFA officielle des meilleurs 3ᵉˢ et les tirs au but), jusqu'à désigner le champion. Chaque clic rejoue un scénario différent. Partage le lien : <b>fless-lab.github.io/cdm2026/simu</b></p>
+  <div class="champ" id="champ"></div>
+  <div id="bracket"></div>
+</div>
+<footer>Simulation ludique — résultats aléatoires, sans valeur de pronostic. Affectation des 3ᵉˢ : table FIFA officielle (Annexe C).</footer>
+<script src="../thirds-table.js"></script>
+<script src="../bracket-core.js"></script>
+<script>
+simReset();
+const bracketEl=document.getElementById('bracket');
+const runBtn=document.getElementById('run'),resetBtn=document.getElementById('reset'),msg=document.getElementById('simmsg'),champ=document.getElementById('champ');
+function render(){bracketEl.innerHTML=bracketTreeHTML(resolveBracket());}
+render();
+let timer=null,running=false;
+function finish(){
+  running=false; runBtn.disabled=false; runBtn.textContent='▶ Relancer';
+  const w=(resolveBracket().res[104]||{}).w;
+  if(w){ champ.style.display='flex'; champ.innerHTML='<span class="ce">🏆</span><span><span class="ct">Champion du monde 2026 (simulé)</span><span class="cn">'+T[w].n+'</span></span>'; msg.textContent=''; }
+}
+function run(){
+  if(running) return; running=true; champ.style.display='none';
+  runBtn.disabled=true; msg.textContent='Simulation en cours…';
+  const step=()=>{ const ph=simStepOnce(); render(); if(ph){ timer=setTimeout(step, ph==='group'?110:520); } else finish(); };
+  step();
+}
+function reset(){ if(timer){clearTimeout(timer);timer=null;} running=false; simReset(); render(); msg.textContent=''; champ.style.display='none'; runBtn.disabled=false; runBtn.textContent='▶ Lancer la simulation'; }
+runBtn.addEventListener('click',run);
+resetBtn.addEventListener('click',reset);
+</script>
+</body>
+</html>
