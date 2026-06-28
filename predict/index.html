@@ -100,6 +100,7 @@ footer{color:var(--soft);font-size:12px;text-align:center;padding:24px 18px 50px
   <div class="pcard"><div class="pcard-h">🧠 Comment ça marche</div><div class="pcard-b">
     <p class="meth">Pas de magie : c'est l'approche la plus fiable pour le foot international (celle de FiveThirtyEight/Opta). Modèle <b>entraîné hors-ligne sur ~49 000 matchs réels</b> (1872→2026) : <b>notes Elo</b> par équipe, modèle de buts <b>Poisson + correction Dixon-Coles</b> (maximum de vraisemblance, avec <b>pondération temporelle</b> — les matchs récents pèsent plus), <b>forces attaque/défense par équipe</b> régularisées, <b>avantage pays-hôte</b> (USA/Canada/Mexique), puis <b>simulation Monte-Carlo</b> du tableau. Les vrais résultats connus sont respectés ; seuls les matchs restants sont projetés.</p>
     <div class="stats" id="stats"></div>
+    <p class="muted" id="refnote" style="margin-top:10px"></p>
   </div></div>
 
   <div class="pcard"><div class="pcard-h">🏆 Probabilités (Monte-Carlo)
@@ -184,6 +185,22 @@ function tally(reach){
   const champ=(rb.res[104]||{}).w; if(champ) add(champ,'W');
 }
 
+/* ---- auto-affinage : met à jour les notes Elo avec les résultats déjà joués
+   de la CdM 2026 (récupérés via ESPN), postérieurs à l'entraînement hors-ligne ---- */
+function eloUpdate(rh,ra,hs,as_){
+  const We=1/(1+Math.pow(10,-(rh-ra)/400));          // terrain neutre (CdM)
+  const W=hs>as_?1:(hs===as_?0.5:0), gd=Math.abs(hs-as_);
+  const g=gd<=1?1:(gd===2?1.5:(gd===3?1.75:1.75+(gd-3)/8));
+  return 60*g*(W-We);                                 // K=60 (Coupe du Monde)
+}
+function refineRatings(){
+  const through=Date.parse((M.meta.trainedThrough||'2026-06-27')+'T23:59:59Z');
+  const koStart=Date.parse('2026-06-28T00:00Z');
+  let n=0;
+  MATCHES.filter(m=>m.hs!=null&&m.utc>through).forEach(m=>{ if(RT[m.h]!=null&&RT[m.a]!=null){const d=eloUpdate(RT[m.h],RT[m.a],m.hs,m.as);RT[m.h]+=d;RT[m.a]-=d;n++;} });
+  if(through<koStart) Object.keys(koScores).forEach(k=>{const s=koScores[k]; if(s.hs!=null&&RT[s.h]!=null&&RT[s.a]!=null){const d=eloUpdate(RT[s.h],RT[s.a],s.hs,s.as);RT[s.h]+=d;RT[s.a]-=d;n++;} });
+  return n;
+}
 let realSnap=null, ready=false, busy=false;
 function render(){ renderPreds(); renderRatings(); }
 function renderStats(){
@@ -243,8 +260,11 @@ function runMC(){
 async function init(){
   renderStats();
   await loadReal();
+  const refined=refineRatings();
   realSnap=snapshotReal(); ready=true;
   render();
+  const rn=document.getElementById('refnote');
+  if(rn) rn.textContent=refined?('🔄 Notes affinées en direct avec '+refined+' résultat'+(refined>1?'s':'')+' de la Coupe du Monde 2026 — le modèle se précise après chaque match.'):'';
   document.getElementById('run').addEventListener('click',runMC);
 }
 init();

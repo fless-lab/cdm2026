@@ -40,7 +40,7 @@ for r in rows:
 print("teams rated:",len(R))
 
 # ---- fit global Dixon-Coles avec décroissance temporelle ----
-HALFLIFE=4.0
+HALFLIFE=2.0
 fit=[rec for rec in records if rec[5]>='2012-01-01']
 z=np.array([(x[0]-x[1])/100 for x in fit]); home=np.array([x[2] for x in fit],float)
 hs=np.array([x[3] for x in fit],float); as_=np.array([x[4] for x in fit],float)
@@ -99,7 +99,7 @@ acc_s={c:0.0 for c in CODE2NAMES}; acc_es={c:0.0 for c in CODE2NAMES}
 acc_c={c:0.0 for c in CODE2NAMES}; acc_ec={c:0.0 for c in CODE2NAMES}; cnt={c:0.0 for c in CODE2NAMES}
 for rh,ra,hm,h_,a_,d,hn,an in records:
     if d<'2014-01-01': continue
-    wt=0.5**(age_years(d)/HALFLIFE)
+    wt=0.5**(age_years(d)/1.2)
     x=(rh-ra)/100; lh=math.exp(A+B*x+ETA*hm); la=math.exp(A-B*x)
     ch=name2code.get(hn); ca=name2code.get(an)
     if ch: acc_s[ch]+=wt*h_; acc_es[ch]+=wt*lh; acc_c[ch]+=wt*a_; acc_ec[ch]+=wt*la; cnt[ch]+=wt
@@ -120,7 +120,7 @@ for c,ns in CODE2NAMES.items():
 lastdate=max(r[5] for r in records)
 model={'ratings':ratings,'offsets':offsets,
        'model':{'alpha':round(A,5),'beta':round(B,5),'eta':round(ETA,5),'rho':round(RHO,5),
-                'hostBonus':round(0.6*ETA,4),'maxGoals':10,'halfLifeYears':HALFLIFE},
+                'hostBonus':round(0.6*ETA,4),'maxGoals':10,'halfLifeYears':HALFLIFE,'formHalfLifeYears':1.2},
        'meta':{'trainedThrough':lastdate,'nMatchesTotal':len(records),'nFit':len(fit),
                'backtest':{'n':n,'accuracy':round(acc/n,3),'logloss':round(ll/n,3),'brier':round(brier/n,3),'since':'2023-01-01'},
                'method':'Elo World Football + Dixon-Coles Poisson (décroissance temporelle, demi-vie 4 ans) + offsets attaque/défense régularisés + avantage hôte',
