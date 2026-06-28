@@ -45,8 +45,28 @@ header{background:var(--card);border-bottom:1px solid var(--line)}
 .stat span{font-size:10.5px;color:var(--soft);text-transform:uppercase;letter-spacing:.04em;font-weight:700}
 .ctrl{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .pmsg{font-size:13px;color:var(--muted);font-weight:600}
-.pm{display:grid;grid-template-columns:1fr auto;gap:10px 16px;align-items:center;padding:11px 2px;border-top:1px solid var(--line2)}
-.pm:first-child{border-top:0}
+.pmwrap{border-top:1px solid var(--line2)}
+.pmwrap:first-child{border-top:0}
+.pm{display:grid;grid-template-columns:1fr auto;gap:10px 16px;align-items:center;padding:11px 2px}
+.adv{margin:0 2px 10px}
+.adv>summary{cursor:pointer;font-size:12px;font-weight:700;color:var(--green-d);padding:4px 0;list-style:none}
+.adv>summary::-webkit-details-marker{display:none}
+.adv>summary:before{content:"▸ ";color:var(--soft)}
+.adv[open]>summary:before{content:"▾ "}
+.hmwrap{overflow-x:auto}
+.hmt{border-collapse:separate;border-spacing:2px;margin:2px 0}
+.hmt td{width:26px;height:23px;text-align:center;font-size:10px;font-variant-numeric:tabular-nums}
+.hmt .hh{color:var(--soft);font-weight:800;width:16px;height:16px;background:none}
+.hcell{color:#08402F;font-weight:700;border-radius:4px}
+.hcell.hb{outline:2px solid var(--gold);outline-offset:-2px}
+.hmlab{font-size:10px;color:var(--soft);font-weight:700;margin:2px 0}
+.hmlab.hx{margin-left:20px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 2px}
+.chip{display:flex;flex-direction:column;gap:1px;background:var(--paper);border:1px solid var(--line2);border-radius:9px;padding:5px 9px;min-width:78px}
+.chip span{font-size:9px;color:var(--soft);text-transform:uppercase;letter-spacing:.03em;font-weight:700}
+.chip b{font-size:14px}
+.tops{font-size:12px;color:var(--muted);margin-top:6px}
+.tops b{color:var(--ink)}
 .pm .tms{display:flex;flex-direction:column;gap:5px;min-width:0}
 .pm .tr{display:flex;align-items:center;gap:8px;font-weight:600;font-size:14px}
 .pm .tr .q{margin-left:auto;font-size:12px;color:var(--muted);font-weight:700}
@@ -78,7 +98,7 @@ footer{color:var(--soft);font-size:12px;text-align:center;padding:24px 18px 50px
 <div class="wrap">
 
   <div class="pcard"><div class="pcard-h">🧠 Comment ça marche</div><div class="pcard-b">
-    <p class="meth">Pas de magie : c'est l'approche la plus fiable pour le foot international (celle de FiveThirtyEight/Opta). Un modèle <b>entraîné hors-ligne sur ~49 000 matchs internationaux réels</b> (1872→2026) : (1) des notes de force <b>Elo</b> par équipe, (2) un <b>modèle de buts de Poisson</b> calibré par maximum de vraisemblance, (3) une <b>simulation Monte-Carlo</b> du tableau final. Les vrais résultats déjà connus sont respectés ; seuls les matchs restants sont projetés.</p>
+    <p class="meth">Pas de magie : c'est l'approche la plus fiable pour le foot international (celle de FiveThirtyEight/Opta). Modèle <b>entraîné hors-ligne sur ~49 000 matchs réels</b> (1872→2026) : <b>notes Elo</b> par équipe, modèle de buts <b>Poisson + correction Dixon-Coles</b> (maximum de vraisemblance, avec <b>pondération temporelle</b> — les matchs récents pèsent plus), <b>forces attaque/défense par équipe</b> régularisées, <b>avantage pays-hôte</b> (USA/Canada/Mexique), puis <b>simulation Monte-Carlo</b> du tableau. Les vrais résultats connus sont respectés ; seuls les matchs restants sont projetés.</p>
     <div class="stats" id="stats"></div>
   </div></div>
 
@@ -100,13 +120,53 @@ footer{color:var(--soft);font-size:12px;text-align:center;padding:24px 18px 50px
 <script src="../thirds-table.js"></script>
 <script src="../bracket-core.js"></script>
 <script>
-const M=window.PREDICT_MODEL, RT=M.ratings, P=M.model;
+const M=window.PREDICT_MODEL, RT=M.ratings, P=M.model, OFF=M.offsets||{}, HOSTS={USA:1,CAN:1,MEX:1};
 const FACT=[1]; function fact(n){for(let i=FACT.length;i<=n;i++)FACT[i]=FACT[i-1]*i;return FACT[n];}
 function pois(k,l){return Math.exp(-l)*Math.pow(l,k)/fact(k);}
-function lambdas(cH,cA,neutral){const rh=RT[cH],ra=RT[cA];if(rh==null||ra==null)return null;const x=(rh-ra)/100,home=neutral?0:1;return [Math.exp(P.alpha+P.beta*x+P.eta*home),Math.exp(P.alpha-P.beta*x)];}
-function matrix(cH,cA,neutral){const L=lambdas(cH,cA,neutral);if(!L)return null;const mg=P.maxGoals,ph=[],pa=[];for(let k=0;k<=mg;k++){ph.push(pois(k,L[0]));pa.push(pois(k,L[1]));}let pH=0,pD=0,pA=0,best=[0,0],bp=0;for(let i=0;i<=mg;i++)for(let j=0;j<=mg;j++){const p=ph[i]*pa[j];if(i>j)pH+=p;else if(i===j)pD+=p;else pA+=p;if(p>bp){bp=p;best=[i,j];}}const s=pH+pD+pA;return {pH:pH/s,pD:pD/s,pA:pA/s,score:best,eh:L[0],ea:L[1]};}
+function lambdas(cH,cA,neutral){
+  const rh=RT[cH],ra=RT[cA]; if(rh==null||ra==null)return null;
+  const x=(rh-ra)/100, hb=P.hostBonus||0, oH=OFF[cH]||{a:0,d:0}, oA=OFF[cA]||{a:0,d:0};
+  const lh=Math.exp(P.alpha+P.beta*x+(neutral?0:P.eta)+(HOSTS[cH]?hb:0)+oH.a-oA.d);
+  const la=Math.exp(P.alpha-P.beta*x+(HOSTS[cA]?hb:0)+oA.a-oH.d);
+  return [lh,la];
+}
+function matrix(cH,cA,neutral){               // Poisson + correction Dixon-Coles
+  const L=lambdas(cH,cA,neutral); if(!L)return null;
+  const lh=L[0],la=L[1],mg=P.maxGoals,rho=P.rho||0,ph=[],pa=[];
+  for(let k=0;k<=mg;k++){ph.push(pois(k,lh));pa.push(pois(k,la));}
+  const Pm=[]; for(let i=0;i<=mg;i++){Pm[i]=[];for(let j=0;j<=mg;j++)Pm[i][j]=ph[i]*pa[j];}
+  Pm[0][0]*=Math.max(1-lh*la*rho,1e-6); Pm[0][1]*=Math.max(1+lh*rho,1e-6);
+  Pm[1][0]*=Math.max(1+la*rho,1e-6);    Pm[1][1]*=Math.max(1-rho,1e-6);
+  let tot=0; for(let i=0;i<=mg;i++)for(let j=0;j<=mg;j++)tot+=Pm[i][j];
+  let pH=0,pD=0,pA=0,o25=0,btts=0,csH=0,csA=0,best=[0,0],bp=0; const ex=[];
+  for(let i=0;i<=mg;i++)for(let j=0;j<=mg;j++){const p=Pm[i][j]/tot;Pm[i][j]=p;
+    if(i>j)pH+=p;else if(i===j)pD+=p;else pA+=p;
+    if(i+j>=3)o25+=p; if(i>=1&&j>=1)btts+=p; if(j===0)csH+=p; if(i===0)csA+=p;
+    if(p>bp){bp=p;best=[i,j];} if(p>0.012)ex.push([i,j,p]);}
+  ex.sort((a,b)=>b[2]-a[2]);
+  return {P:Pm,lh,la,pH,pD,pA,o25,u25:1-o25,btts,nbtts:1-btts,csH,csA,sup:lh-la,score:best,exact:ex.slice(0,5)};
+}
 function rpois(l){const Lx=Math.exp(-l);let k=0,p=1;do{k++;p*=Math.random();}while(p>Lx);return k-1;}
 const pct=x=>(x*100).toFixed(x>=0.0095?0:1)+'%';
+function heatmap(mx,cH,cA){
+  const N=5; let mx0=0; for(let i=0;i<=N;i++)for(let j=0;j<=N;j++)mx0=Math.max(mx0,mx.P[i][j]);
+  let h='<div class="hmlab hx">'+T[cA].n+' (extérieur) →</div><table class="hmt"><tr><td class="hh"></td>';
+  for(let j=0;j<=N;j++)h+='<td class="hh">'+j+'</td>';
+  h+='</tr>';
+  for(let i=0;i<=N;i++){ h+='<tr><td class="hh">'+i+'</td>';
+    for(let j=0;j<=N;j++){const p=mx.P[i][j],al=p/mx0,isb=(i===mx.score[0]&&j===mx.score[1]);
+      h+='<td class="hcell'+(isb?' hb':'')+'" style="background:rgba(14,124,90,'+(0.06+0.9*al).toFixed(3)+')" title="'+i+'–'+j+' : '+pct(p)+'">'+(p>=0.04?Math.round(p*100):'')+'</td>';}
+    h+='</tr>'; }
+  return '<div class="hmlab hy">↓ '+T[cH].n+' (à dom.)</div><div class="hmwrap">'+h+'</table></div>';
+}
+function chips(mx){
+  const c=(l,v)=>'<div class="chip"><span>'+l+'</span><b>'+pct(v)+'</b></div>';
+  return '<div class="chips">'+c('+2,5 buts',mx.o25)+c('−2,5 buts',mx.u25)+c('Les 2 marquent',mx.btts)
+    +c('Clean sheet dom.',mx.csH)+c('Clean sheet ext.',mx.csA)
+    +'<div class="chip"><span>Buts attendus</span><b>'+mx.lh.toFixed(2)+'–'+mx.la.toFixed(2)+'</b></div>'
+    +'<div class="chip"><span>Supériorité</span><b>'+(mx.sup>=0?'+':'')+mx.sup.toFixed(2)+'</b></div></div>'
+    +'<div class="tops"><b>Scores exacts les + probables :</b> '+mx.exact.map(e=>e[0]+'–'+e[1]+' ('+pct(e[2])+')').join(' · ')+'</div>';
+}
 
 function simOnceModel(){
   MATCHES.forEach(m=>{ if(m.hs==null){const L=lambdas(m.h,m.a,true); if(L){m.hs=rpois(L[0]);m.as=rpois(L[1]);m.st='FT';}} });
@@ -143,13 +203,13 @@ function renderPreds(){
   list.forEach(k=>{
     const t=rb.teams[k.no], mx=matrix(t.h.code,t.a.code,true); if(!mx)return;
     const qa=mx.pH+mx.pD*0.5, qb=mx.pA+mx.pD*0.5;
-    h+='<div class="pm"><div class="tms">'+
+    h+='<div class="pmwrap"><div class="pm"><div class="tms">'+
       '<div class="tr '+(qa>=qb?'fav':'')+'"><img class="fmini" src="https://flagcdn.com/w40/'+T[t.h.code].f+'.png" alt="">'+T[t.h.code].n+'<span class="q">qualif '+pct(qa)+'</span></div>'+
       '<div class="tr '+(qb>qa?'fav':'')+'"><img class="fmini" src="https://flagcdn.com/w40/'+T[t.a.code].f+'.png" alt="">'+T[t.a.code].n+'<span class="q">qualif '+pct(qb)+'</span></div>'+
       '</div><div class="sc">'+mx.score[0]+' – '+mx.score[1]+'<small>SCORE LE + PROBABLE</small></div>'+
       '<div class="bar3"><i class="bh" style="width:'+(mx.pH*100)+'%"></i><i class="bd" style="width:'+(mx.pD*100)+'%"></i><i class="ba" style="width:'+(mx.pA*100)+'%"></i></div>'+
       '<div class="b3l"><span>Victoire '+pct(mx.pH)+'</span><span>Nul '+pct(mx.pD)+'</span><span>Victoire '+pct(mx.pA)+'</span></div>'+
-      '</div>';
+      '</div><details class="adv"><summary>Statistiques avancées (carte de chaleur, +2,5, BTTS…)</summary>'+heatmap(mx,t.h.code,t.a.code)+chips(mx)+'</details></div>';
   });
   box.innerHTML=h;
 }
@@ -164,7 +224,7 @@ function renderMC(reach,N){
     .sort((a,b)=>b.r.W-a.r.W||b.r.F-a.r.F||b.r.SF-a.r.SF);
   let h='<table class="tbl"><thead><tr><th class="l">#</th><th class="l">Équipe</th><th>8ᵉ</th><th>Quart</th><th>Demi</th><th>Finale</th><th>Titre</th></tr></thead><tbody>';
   rows.forEach((x,i)=>{const r=x.r;h+='<tr class="'+(i<3?'top':'')+'"><td class="rk">'+(i+1)+'</td><td class="l"><img class="fmini" src="https://flagcdn.com/w40/'+T[x.c].f+'.png" alt="">'+T[x.c].n+'</td><td>'+pct(r.R16/N)+'</td><td>'+pct(r.QF/N)+'</td><td>'+pct(r.SF/N)+'</td><td>'+pct(r.F/N)+'</td><td class="wc">'+pct(r.W/N)+'</td></tr>';});
-  document.getElementById('mcbox').innerHTML=h+'</tbody></table><p class="muted" style="margin-top:10px">Sur '+N.toLocaleString('fr')+' simulations. Tirs au but ≈ pile ou face. Une équipe « atteint » un tour si elle y figure.</p>';
+  document.getElementById('mcbox').innerHTML=h+'</tbody></table><p class="muted" style="margin-top:10px">Sur '+N.toLocaleString('fr')+' simulations (marge ≈ ±'+(100/Math.sqrt(N)).toFixed(1)+' pts). Tirs au but ≈ pile ou face · avantage hôte (USA/Canada/Mexique) inclus. Plus le tournoi avance, plus les probabilités se précisent (le chemin dans le tableau compte énormément).</p>';
 }
 function runMC(){
   if(busy||!ready) return; busy=true;
