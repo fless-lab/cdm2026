@@ -98,7 +98,7 @@ footer{color:var(--soft);font-size:12px;text-align:center;padding:24px 18px 50px
 <div class="wrap">
 
   <div class="pcard"><div class="pcard-h">🧠 Comment ça marche</div><div class="pcard-b">
-    <p class="meth">Pas de magie : c'est l'approche la plus fiable pour le foot international (celle de FiveThirtyEight/Opta). Modèle <b>entraîné hors-ligne sur ~49 000 matchs réels</b> (1872→2026) : <b>notes Elo</b> par équipe, modèle de buts <b>Poisson + correction Dixon-Coles</b> (maximum de vraisemblance, avec <b>pondération temporelle</b> — les matchs récents pèsent plus), <b>forces attaque/défense par équipe</b> régularisées, <b>avantage pays-hôte</b> (USA/Canada/Mexique), puis <b>simulation Monte-Carlo</b> du tableau. Les vrais résultats connus sont respectés ; seuls les matchs restants sont projetés.</p>
+    <p class="meth">Pas de magie : c'est l'approche la plus fiable pour le foot international (celle de FiveThirtyEight/Opta). Modèle <b>entraîné hors-ligne sur ~49 000 matchs réels</b> (1872→2026) : <b>notes Elo</b> par équipe, modèle de buts <b>Poisson + correction Dixon-Coles</b> (maximum de vraisemblance, <b>pondération temporelle</b> — les matchs récents pèsent bien plus), <b>forces attaque/défense par équipe fusionnées avec le xG réel</b> (tirs, tirs cadrés, buts attendus — données StatsBomb CdM 2022 / Euro 2024 / Copa 2024 / CAN 2023, ajustées à l'adversaire), <b>avantage pays-hôte</b>, puis <b>simulation Monte-Carlo</b>. Les vrais résultats connus sont respectés ; seuls les matchs restants sont projetés.</p>
     <div class="stats" id="stats"></div>
     <p class="muted" id="refnote" style="margin-top:10px"></p>
   </div></div>
@@ -209,7 +209,8 @@ function renderStats(){
     '<div class="stat"><b>'+(b.accuracy*100).toFixed(1)+'%</b><span>Précision 1N2 (test '+b.since+')</span></div>'+
     '<div class="stat"><b>'+b.logloss.toFixed(3)+'</b><span>Log-loss (hasard = 1.099)</span></div>'+
     '<div class="stat"><b>'+(M.meta.nMatchesTotal/1000).toFixed(0)+'k</b><span>Matchs d’entraînement</span></div>'+
-    '<div class="stat"><b>'+M.meta.trainedThrough+'</b><span>Données à jour au</span></div>';
+    '<div class="stat"><b>'+M.meta.trainedThrough+'</b><span>Données à jour au</span></div>'+
+    '<div class="stat"><b>'+Object.keys(M.xgStats||{}).length+'</b><span>Équipes avec données de tir (xG)</span></div>';
 }
 function renderPreds(){
   const rb=resolveBracket();
@@ -231,10 +232,11 @@ function renderPreds(){
   box.innerHTML=h;
 }
 function renderRatings(){
+  const XG=M.xgStats||{};
   const arr=Object.keys(RT).map(c=>[c,RT[c]]).sort((a,b)=>b[1]-a[1]);
-  let h='<table class="tbl"><thead><tr><th class="l">#</th><th class="l">Équipe</th><th>Note Elo</th></tr></thead><tbody>';
-  arr.forEach((x,i)=>{h+='<tr><td class="rk">'+(i+1)+'</td><td class="l"><img class="fmini" src="https://flagcdn.com/w40/'+T[x[0]].f+'.png" alt="">'+T[x[0]].n+'</td><td class="mono">'+x[1].toFixed(0)+'</td></tr>';});
-  document.getElementById('ratings').innerHTML=h+'</tbody></table>';
+  let h='<table class="tbl"><thead><tr><th class="l">#</th><th class="l">Équipe</th><th>Elo</th><th>xG/m</th><th>xG conc.</th><th>Tirs cad./m</th></tr></thead><tbody>';
+  arr.forEach((x,i)=>{const g=XG[x[0]];h+='<tr><td class="rk">'+(i+1)+'</td><td class="l"><img class="fmini" src="https://flagcdn.com/w40/'+T[x[0]].f+'.png" alt="">'+T[x[0]].n+'</td><td class="mono">'+x[1].toFixed(0)+'</td><td class="mono">'+(g?g.xgf.toFixed(2):'–')+'</td><td class="mono">'+(g?g.xga.toFixed(2):'–')+'</td><td class="mono">'+(g?g.sot.toFixed(1):'–')+'</td></tr>';});
+  document.getElementById('ratings').innerHTML=h+'</tbody></table><p class="muted" style="margin-top:8px">xG = buts attendus (qualité des occasions, tir par tir). 37 équipes avec données StatsBomb (CdM 2022, Euro 2024, Copa 2024, CAN 2023) ; « – » = pas de données récentes de grand tournoi.</p>';
 }
 function renderMC(reach,N){
   const rows=Object.keys(reach).map(c=>({c,r:reach[c]})).filter(x=>x.r.R16>0||x.r.W>0)

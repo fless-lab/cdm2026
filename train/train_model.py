@@ -117,8 +117,37 @@ ratings={}
 for c,ns in CODE2NAMES.items():
     for nm in ns:
         if canon(nm) in R: ratings[c]=round(R[canon(nm)],1); break
+
+# ---- offsets xG (opponent-ajustés, StatsBomb) fusionnés avec les offsets buts ----
+import os as _os
+xgstats={}
+if _os.path.exists('/tmp/xg_matches.json'):
+    xm=json.load(open('/tmp/xg_matches.json'))
+    accx={c:{'xgf':0.,'ef':0.,'xga':0.,'ea':0.,'n':0.,'sot':0.,'mp':0} for c in CODE2NAMES}
+    for h,a,xgh,xga,soth,sota in xm:
+        ch=name2code.get(canon(h)); ca=name2code.get(canon(a))
+        if not ch and not ca: continue
+        if ch in ratings and ca in ratings:
+            x=(ratings[ch]-ratings[ca])/100; efh=math.exp(A+B*x); efa=math.exp(A-B*x)
+        else: efh=efa=math.exp(A)
+        if ch:
+            s=accx[ch]; s['xgf']+=xgh; s['ef']+=efh; s['xga']+=xga; s['ea']+=efa; s['n']+=1; s['sot']+=soth; s['mp']+=1
+        if ca:
+            s=accx[ca]; s['xgf']+=xga; s['ef']+=efa; s['xga']+=xgh; s['ea']+=efh; s['n']+=1; s['sot']+=sota; s['mp']+=1
+    for c in CODE2NAMES:
+        s=accx[c]
+        if s['mp']>0:
+            xgstats[c]={'xgf':round(s['xgf']/s['mp'],2),'xga':round(s['xga']/s['mp'],2),'sot':round(s['sot']/s['mp'],1),'mp':s['mp']}
+        if s['n']>=3 and s['ef']>0 and s['xga']>0:
+            xatk=math.log((s['xgf']+0.4)/(s['ef']+0.4)); xdef=math.log((s['ea']+0.4)/(s['xga']+0.4))
+            shx=min(1.0,s['n']/(s['n']+5))*0.6
+            o=offsets[c]
+            offsets[c]={'a':round(max(-0.5,min(0.5,o['a']*(1-shx)+xatk*shx)),4),
+                        'd':round(max(-0.5,min(0.5,o['d']*(1-shx)+xdef*shx)),4)}
+    print("xG fusionne pour",len(xgstats),"equipes")
+
 lastdate=max(r[5] for r in records)
-model={'ratings':ratings,'offsets':offsets,
+model={'ratings':ratings,'offsets':offsets,'xgStats':xgstats,
        'model':{'alpha':round(A,5),'beta':round(B,5),'eta':round(ETA,5),'rho':round(RHO,5),
                 'hostBonus':round(0.6*ETA,4),'maxGoals':10,'halfLifeYears':HALFLIFE,'formHalfLifeYears':1.2},
        'meta':{'trainedThrough':lastdate,'nMatchesTotal':len(records),'nFit':len(fit),
