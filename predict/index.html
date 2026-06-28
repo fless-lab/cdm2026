@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prédictions IA — Coupe du Monde 2026 (modèle Elo + Poisson + Monte-Carlo)</title>
+<meta name="description" content="Prédictions de scores de la Coupe du Monde 2026 par un modèle statistique entraîné sur 49 000 matchs internationaux réels : notes Elo, modèle de Poisson, simulation Monte-Carlo des probabilités de titre.">
+<link rel="canonical" href="https://fless-lab.github.io/cdm2026/predict/">
+<meta property="og:title" content="Prédictions IA — Coupe du Monde 2026">
+<meta property="og:description" content="Scores prédits + probabilités de titre par un modèle Elo/Poisson/Monte-Carlo entraîné sur données réelles.">
+<meta property="og:image" content="https://fless-lab.github.io/cdm2026/og.png">
+<meta property="og:url" content="https://fless-lab.github.io/cdm2026/predict/">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F4F3EE; --card:#FFFFFF; --line:#E6E4DA; --line2:#EFEDE5;
+  --ink:#191B1F; --muted:#6E727A; --soft:#9CA0A8;
+  --green:#0E7C5A; --green-d:#0A5E45; --green-bg:#E7F3EE;
+  --gold:#B7820F; --gold-bg:#FBF2D9; --gold-line:#E8C766;
+  --live:#D64545; --shadow:0 1px 2px rgba(20,22,28,.04), 0 4px 16px rgba(20,22,28,.05);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;font-size:15px;-webkit-font-smoothing:antialiased}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums}
+.wrap{max-width:1000px;margin:0 auto;padding:0 18px}
+a{color:var(--green-d)}
+header{background:var(--card);border-bottom:1px solid var(--line)}
+.hbar{display:flex;align-items:center;gap:16px;padding:14px 0;flex-wrap:wrap}
+.brand b{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:22px;letter-spacing:-.02em;display:block}
+.brand span{font-size:11.5px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.back{margin-left:auto;font-size:13px;font-weight:700;text-decoration:none;border:1px solid var(--line);background:var(--card);border-radius:10px;padding:8px 12px;color:var(--ink)}
+.btn{border:1px solid var(--green);background:var(--green);color:#fff;border-radius:11px;padding:11px 18px;font-size:15px;font-weight:800;font-family:inherit;cursor:pointer;transition:filter .15s,transform .05s}
+.btn:hover{filter:brightness(1.06)}.btn:active{transform:translateY(1px)}.btn[disabled]{opacity:.55;cursor:default}
+.flag{width:24px;height:18px;border-radius:3px;object-fit:cover;box-shadow:0 0 0 1px rgba(0,0,0,.07) inset;background:#eee;flex:none}
+.fmini{width:20px;height:15px;border-radius:2px;object-fit:cover;box-shadow:0 0 0 1px rgba(0,0,0,.07) inset;flex:none}
+.pcard{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);margin:16px 0;overflow:hidden}
+.pcard-h{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:16px;padding:14px 18px;border-bottom:1px solid var(--line2);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pcard-b{padding:14px 18px}
+.meth{color:var(--muted);font-size:13.5px;line-height:1.5;max-width:74ch}
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:12px}
+.stat{background:var(--paper);border:1px solid var(--line2);border-radius:10px;padding:10px 12px}
+.stat b{display:block;font-family:'Bricolage Grotesque',sans-serif;font-size:20px}
+.stat span{font-size:10.5px;color:var(--soft);text-transform:uppercase;letter-spacing:.04em;font-weight:700}
+.ctrl{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.pmsg{font-size:13px;color:var(--muted);font-weight:600}
+.pm{display:grid;grid-template-columns:1fr auto;gap:10px 16px;align-items:center;padding:11px 2px;border-top:1px solid var(--line2)}
+.pm:first-child{border-top:0}
+.pm .tms{display:flex;flex-direction:column;gap:5px;min-width:0}
+.pm .tr{display:flex;align-items:center;gap:8px;font-weight:600;font-size:14px}
+.pm .tr .q{margin-left:auto;font-size:12px;color:var(--muted);font-weight:700}
+.pm .tr.fav .q{color:var(--green-d)}
+.pm .sc{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:20px;text-align:center;white-space:nowrap}
+.pm .sc small{display:block;font-family:'Inter';font-size:10px;color:var(--soft);font-weight:700;letter-spacing:.03em}
+.bar3{grid-column:1/-1;display:flex;height:7px;border-radius:6px;overflow:hidden;background:var(--line2)}
+.bar3 i{display:block}.bar3 .bh{background:var(--green)}.bar3 .bd{background:#C9CCCE}.bar3 .ba{background:#7BA7D9}
+.b3l{grid-column:1/-1;display:flex;justify-content:space-between;font-size:10.5px;color:var(--soft);font-weight:700;margin-top:-4px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+.tbl th{font-size:10px;font-weight:800;color:var(--soft);text-transform:uppercase;letter-spacing:.04em;text-align:right;padding:8px 6px}
+.tbl th:first-child,.tbl th.l{text-align:left}
+.tbl td{padding:8px 6px;text-align:right;border-top:1px solid var(--line2);font-variant-numeric:tabular-nums}
+.tbl td.l{text-align:left;display:flex;align-items:center;gap:8px;font-weight:600}
+.tbl td.wc{font-weight:800;color:var(--green-d)}
+.tbl tr.top td{background:#FFFDF6}
+.rk{color:var(--soft);font-weight:800;width:26px}
+.muted{color:var(--muted);font-size:12.5px}
+details.rt summary{cursor:pointer;font-weight:700;font-size:13px;color:var(--green-d);padding:4px 0}
+footer{color:var(--soft);font-size:12px;text-align:center;padding:24px 18px 50px;line-height:1.6}
+@media(max-width:560px){.pm .sc{font-size:18px}}
+</style>
+</head>
+<body>
+<header><div class="wrap hbar">
+  <div class="brand"><b>Prédictions · Coupe du Monde 2026</b><span>Modèle Elo · Poisson · Monte-Carlo</span></div>
+  <a class="back" href="../">← Calendrier</a>
+</div></header>
+<div class="wrap">
+
+  <div class="pcard"><div class="pcard-h">🧠 Comment ça marche</div><div class="pcard-b">
+    <p class="meth">Pas de magie : c'est l'approche la plus fiable pour le foot international (celle de FiveThirtyEight/Opta). Un modèle <b>entraîné hors-ligne sur ~49 000 matchs internationaux réels</b> (1872→2026) : (1) des notes de force <b>Elo</b> par équipe, (2) un <b>modèle de buts de Poisson</b> calibré par maximum de vraisemblance, (3) une <b>simulation Monte-Carlo</b> du tableau final. Les vrais résultats déjà connus sont respectés ; seuls les matchs restants sont projetés.</p>
+    <div class="stats" id="stats"></div>
+  </div></div>
+
+  <div class="pcard"><div class="pcard-h">🏆 Probabilités (Monte-Carlo)
+    <span class="ctrl" style="margin-left:auto">
+      <button class="btn" id="run">▶ Lancer 10 000 simulations</button>
+      <span class="pmsg" id="pmsg"></span>
+    </span></div><div class="pcard-b" id="mcbox"><p class="muted">Clique sur « Lancer » pour estimer les chances de chaque équipe d'atteindre chaque tour et de gagner la Coupe.</p></div></div>
+
+  <div class="pcard"><div class="pcard-h">🔮 Scores prédits — prochains matchs</div><div class="pcard-b" id="preds"><p class="muted">Chargement des affiches réelles…</p></div></div>
+
+  <div class="pcard"><div class="pcard-h">📊 Puissance des équipes</div><div class="pcard-b">
+    <details class="rt"><summary>Afficher les notes Elo (calculées sur l'historique réel)</summary><div id="ratings" style="margin-top:8px"></div></details>
+  </div></div>
+
+</div>
+<footer>Modèle statistique à but ludique — aucune garantie. Données : martj42/international_results · Elo World Football · Poisson · Monte-Carlo. Phases finales jouées en terrain neutre (sans avantage du terrain).</footer>
+<script src="../predict-model.js"></script>
+<script src="../thirds-table.js"></script>
+<script src="../bracket-core.js"></script>
+<script>
+const M=window.PREDICT_MODEL, RT=M.ratings, P=M.model;
+const FACT=[1]; function fact(n){for(let i=FACT.length;i<=n;i++)FACT[i]=FACT[i-1]*i;return FACT[n];}
+function pois(k,l){return Math.exp(-l)*Math.pow(l,k)/fact(k);}
+function lambdas(cH,cA,neutral){const rh=RT[cH],ra=RT[cA];if(rh==null||ra==null)return null;const x=(rh-ra)/100,home=neutral?0:1;return [Math.exp(P.alpha+P.beta*x+P.eta*home),Math.exp(P.alpha-P.beta*x)];}
+function matrix(cH,cA,neutral){const L=lambdas(cH,cA,neutral);if(!L)return null;const mg=P.maxGoals,ph=[],pa=[];for(let k=0;k<=mg;k++){ph.push(pois(k,L[0]));pa.push(pois(k,L[1]));}let pH=0,pD=0,pA=0,best=[0,0],bp=0;for(let i=0;i<=mg;i++)for(let j=0;j<=mg;j++){const p=ph[i]*pa[j];if(i>j)pH+=p;else if(i===j)pD+=p;else pA+=p;if(p>bp){bp=p;best=[i,j];}}const s=pH+pD+pA;return {pH:pH/s,pD:pD/s,pA:pA/s,score:best,eh:L[0],ea:L[1]};}
+function rpois(l){const Lx=Math.exp(-l);let k=0,p=1;do{k++;p*=Math.random();}while(p>Lx);return k-1;}
+const pct=x=>(x*100).toFixed(x>=0.0095?0:1)+'%';
+
+function simOnceModel(){
+  MATCHES.forEach(m=>{ if(m.hs==null){const L=lambdas(m.h,m.a,true); if(L){m.hs=rpois(L[0]);m.as=rpois(L[1]);m.st='FT';}} });
+  for(let g=0;g<260;g++){
+    const rb=resolveBracket(); let did=false;
+    for(const k of KO){const t=rb.teams[k.no]; if(t&&t.h&&t.a){const key=pairKey(t.h.code,t.a.code); if(!koScores[key]){const mx=matrix(t.h.code,t.a.code,true);const pAdv=mx?mx.pH+mx.pD*0.5:0.5;const w=Math.random()<pAdv?t.h.code:t.a.code;koScores[key]={h:t.h.code,a:t.a.code,hs:0,as:0,st:'FT',winner:w};did=true;break;}}}
+    if(!did) break;
+  }
+}
+const ROUNDS={R16:[89,90,91,92,93,94,95,96],QF:[97,98,99,100],SF:[101,102],F:[104]};
+function tally(reach){
+  const rb=resolveBracket();
+  const add=(c,r)=>{ if(!c)return; (reach[c]||(reach[c]={R16:0,QF:0,SF:0,F:0,W:0}))[r]++; };
+  for(const r in ROUNDS){const seen=new Set();ROUNDS[r].forEach(no=>{const t=rb.teams[no];[t&&t.h&&t.h.code,t&&t.a&&t.a.code].forEach(c=>{if(c&&!seen.has(c)){seen.add(c);add(c,r);}});});}
+  const champ=(rb.res[104]||{}).w; if(champ) add(champ,'W');
+}
+
+let realSnap=null, ready=false, busy=false;
+function render(){ renderPreds(); renderRatings(); }
+function renderStats(){
+  const b=M.meta.backtest;
+  document.getElementById('stats').innerHTML=
+    '<div class="stat"><b>'+(b.accuracy*100).toFixed(1)+'%</b><span>Précision 1N2 (test '+b.since+')</span></div>'+
+    '<div class="stat"><b>'+b.logloss.toFixed(3)+'</b><span>Log-loss (hasard = 1.099)</span></div>'+
+    '<div class="stat"><b>'+(M.meta.nMatchesTotal/1000).toFixed(0)+'k</b><span>Matchs d’entraînement</span></div>'+
+    '<div class="stat"><b>'+M.meta.trainedThrough+'</b><span>Données à jour au</span></div>';
+}
+function renderPreds(){
+  const rb=resolveBracket();
+  const box=document.getElementById('preds');
+  const list=KO.filter(k=>{const t=rb.teams[k.no];return t&&t.h&&t.a&&!koScores[pairKey(t.h.code,t.a.code)];}).sort((a,b)=>a.no-b.no);
+  if(!list.length){ box.innerHTML='<p class="muted">Aucune affiche encore déterminée (les équipes des phases finales se fixent à la fin des poules).</p>'; return; }
+  let h='';
+  list.forEach(k=>{
+    const t=rb.teams[k.no], mx=matrix(t.h.code,t.a.code,true); if(!mx)return;
+    const qa=mx.pH+mx.pD*0.5, qb=mx.pA+mx.pD*0.5;
+    h+='<div class="pm"><div class="tms">'+
+      '<div class="tr '+(qa>=qb?'fav':'')+'"><img class="fmini" src="https://flagcdn.com/w40/'+T[t.h.code].f+'.png" alt="">'+T[t.h.code].n+'<span class="q">qualif '+pct(qa)+'</span></div>'+
+      '<div class="tr '+(qb>qa?'fav':'')+'"><img class="fmini" src="https://flagcdn.com/w40/'+T[t.a.code].f+'.png" alt="">'+T[t.a.code].n+'<span class="q">qualif '+pct(qb)+'</span></div>'+
+      '</div><div class="sc">'+mx.score[0]+' – '+mx.score[1]+'<small>SCORE LE + PROBABLE</small></div>'+
+      '<div class="bar3"><i class="bh" style="width:'+(mx.pH*100)+'%"></i><i class="bd" style="width:'+(mx.pD*100)+'%"></i><i class="ba" style="width:'+(mx.pA*100)+'%"></i></div>'+
+      '<div class="b3l"><span>Victoire '+pct(mx.pH)+'</span><span>Nul '+pct(mx.pD)+'</span><span>Victoire '+pct(mx.pA)+'</span></div>'+
+      '</div>';
+  });
+  box.innerHTML=h;
+}
+function renderRatings(){
+  const arr=Object.keys(RT).map(c=>[c,RT[c]]).sort((a,b)=>b[1]-a[1]);
+  let h='<table class="tbl"><thead><tr><th class="l">#</th><th class="l">Équipe</th><th>Note Elo</th></tr></thead><tbody>';
+  arr.forEach((x,i)=>{h+='<tr><td class="rk">'+(i+1)+'</td><td class="l"><img class="fmini" src="https://flagcdn.com/w40/'+T[x[0]].f+'.png" alt="">'+T[x[0]].n+'</td><td class="mono">'+x[1].toFixed(0)+'</td></tr>';});
+  document.getElementById('ratings').innerHTML=h+'</tbody></table>';
+}
+function renderMC(reach,N){
+  const rows=Object.keys(reach).map(c=>({c,r:reach[c]})).filter(x=>x.r.R16>0||x.r.W>0)
+    .sort((a,b)=>b.r.W-a.r.W||b.r.F-a.r.F||b.r.SF-a.r.SF);
+  let h='<table class="tbl"><thead><tr><th class="l">#</th><th class="l">Équipe</th><th>8ᵉ</th><th>Quart</th><th>Demi</th><th>Finale</th><th>Titre</th></tr></thead><tbody>';
+  rows.forEach((x,i)=>{const r=x.r;h+='<tr class="'+(i<3?'top':'')+'"><td class="rk">'+(i+1)+'</td><td class="l"><img class="fmini" src="https://flagcdn.com/w40/'+T[x.c].f+'.png" alt="">'+T[x.c].n+'</td><td>'+pct(r.R16/N)+'</td><td>'+pct(r.QF/N)+'</td><td>'+pct(r.SF/N)+'</td><td>'+pct(r.F/N)+'</td><td class="wc">'+pct(r.W/N)+'</td></tr>';});
+  document.getElementById('mcbox').innerHTML=h+'</tbody></table><p class="muted" style="margin-top:10px">Sur '+N.toLocaleString('fr')+' simulations. Tirs au but ≈ pile ou face. Une équipe « atteint » un tour si elle y figure.</p>';
+}
+function runMC(){
+  if(busy||!ready) return; busy=true;
+  const N=10000, snap=snapshotReal(), reach={}; let done=0;
+  const btn=document.getElementById('run'),msg=document.getElementById('pmsg');
+  btn.disabled=true;
+  function chunk(){
+    const end=Math.min(done+400,N);
+    for(;done<end;done++){ restoreReal(snap); simOnceModel(); tally(reach); }
+    msg.textContent='Simulation… '+Math.round(done/N*100)+'%';
+    if(done<N) setTimeout(chunk,0);
+    else { restoreReal(snap); busy=false; btn.disabled=false; msg.textContent='✓ '+N.toLocaleString('fr')+' simulations'; renderMC(reach,N); }
+  }
+  chunk();
+}
+async function init(){
+  renderStats();
+  await loadReal();
+  realSnap=snapshotReal(); ready=true;
+  render();
+  document.getElementById('run').addEventListener('click',runMC);
+}
+init();
+</script>
+</body>
+</html>
