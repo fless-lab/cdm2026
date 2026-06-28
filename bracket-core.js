@@ -150,6 +150,10 @@ const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;'
 function flag(code,cls){const f=T[code].f;return `<img class="flag${cls?' '+cls:''}" src="https://flagcdn.com/w40/${f}.png" srcset="https://flagcdn.com/w80/${f}.png 2x" alt="" loading="lazy">`;}
 function fmini(code){const f=T[code].f;return `<img class="fmini" src="https://flagcdn.com/w40/${f}.png" alt="" loading="lazy">`;}
 const pairKey=(a,b)=>[a,b].sort().join('|');
+// un match d'élim. est "tranché" s'il a un vainqueur, ou un score final décisif.
+// Les matchs LIVE / à venir / nuls sans vainqueur ne le sont PAS → la simulation doit les jouer
+// (sinon un match en cours bloque tout le bracket et aucun champion n'est désigné).
+function koDecided(sc){ return !!(sc && sc.hs!=null && (sc.winner || (sc.st==='FT' && sc.hs!==sc.as))); }
 let koScores={}, koOfficial={};
 let THIRDS_TABLE=(typeof window!=='undefined'&&window.THIRD_PLACE_ALLOCATION)?window.THIRD_PLACE_ALLOCATION:{};
 const HOST_NODE={E:74,I:77,A:79,L:80,D:81,G:82,B:85,K:87};
@@ -253,7 +257,7 @@ function simStepOnce(){
     const t=rb.teams[k.no];
     if(t&&t.h&&t.a){
       const key=pairKey(t.h.code,t.a.code);
-      if(!koScores[key]){
+      if(!koDecided(koScores[key])){
         let hs=simGoals(),as=simGoals(),w;
         w=hs===as?(Math.random()<0.5?t.h.code:t.a.code):(hs>as?t.h.code:t.a.code);
         koScores[key]={h:t.h.code,a:t.a.code,hs,as,st:'FT',winner:w};
@@ -367,7 +371,9 @@ function snapshotReal(){return{
 };}
 function restoreReal(b){
   b.matches.forEach(s=>{const m=MATCHES.find(x=>x.no===s.no); m.hs=s.hs;m.as=s.as;m.st=s.st;});
-  koScores=b.koScores; koOfficial=b.koOfficial;
+  // copie profonde : sinon simOnce()/simOnceModel() muteraient koScores ET le snapshot partagé,
+  // polluant les simulations suivantes (bracket incohérent → pas de champion). Chaque restore = état propre.
+  koScores=JSON.parse(JSON.stringify(b.koScores)); koOfficial=JSON.parse(JSON.stringify(b.koOfficial));
 }
 
 async function loadReal(){

@@ -87,7 +87,31 @@ table{width:100%;border-collapse:collapse;font-size:13.5px}
 .muted{color:var(--muted);font-size:12.5px}
 details.rt summary{cursor:pointer;font-weight:700;font-size:13px;color:var(--green-d);padding:4px 0}
 footer{color:var(--soft);font-size:12px;text-align:center;padding:24px 18px 50px;line-height:1.6}
-@media(max-width:560px){.pm .sc{font-size:18px}}
+details.compo{margin:0 2px 12px}
+details.compo>summary{cursor:pointer;font-size:12px;font-weight:700;color:var(--green-d);padding:5px 0;list-style:none}
+details.compo>summary::-webkit-details-marker{display:none}
+details.compo>summary:before{content:"▸ ";color:var(--soft)}
+details.compo[open]>summary:before{content:"▾ "}
+.ccgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:6px 0}
+.cc{background:var(--paper);border:1px solid var(--line2);border-radius:11px;padding:9px 10px}
+.ccn{display:flex;align-items:center;gap:7px;font-weight:800;font-size:13.5px;font-family:'Bricolage Grotesque',sans-serif;margin-bottom:7px}
+.ccm{margin-left:auto;font-size:10.5px;color:var(--soft);font-weight:700;font-family:'JetBrains Mono',monospace}
+.ccm b.up{color:var(--green-d)}.ccm b.dn{color:var(--live)}
+.pl{display:flex;align-items:center;gap:7px;width:100%;text-align:left;background:var(--card);border:1px solid var(--line2);border-radius:8px;padding:5px 8px;margin:3px 0;font-family:inherit;font-size:12.5px;cursor:pointer;color:var(--ink);transition:background .12s,opacity .12s}
+.pl:hover{background:var(--green-bg);border-color:var(--gold-line)}
+.pl .plp{font-size:9px;font-weight:800;color:var(--soft);width:30px;flex:none;letter-spacing:.02em}
+.pl .pln{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pl .plr{color:var(--green-d);font-weight:700;font-size:11px;white-space:nowrap}
+.pl .plo{margin-left:auto;font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--muted);flex:none}
+.pl.out{opacity:.62;background:#FCEDED;border-color:#F0C9C9;text-decoration:line-through;text-decoration-color:var(--live)}
+.pl.out .plr,.pl.out .plo{text-decoration:none}
+.ki{margin-top:8px;border-top:1px dashed var(--line);padding-top:6px}
+.kih{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.03em;color:var(--soft);font-weight:800;margin-bottom:3px}
+.kir{display:flex;gap:8px;align-items:center;font-size:11.5px;padding:1px 0}
+.kir .kn{font-weight:700;min-width:74px}
+.kir .kv{color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:11px}
+.ccnote{font-size:11px;color:var(--soft);line-height:1.5;margin:4px 2px 0}
+@media(max-width:560px){.pm .sc{font-size:18px}.ccgrid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -99,6 +123,7 @@ footer{color:var(--soft);font-size:12px;text-align:center;padding:24px 18px 50px
 
   <div class="pcard"><div class="pcard-h">🧠 Comment ça marche</div><div class="pcard-b">
     <p class="meth">Pas de magie : c'est l'approche la plus fiable pour le foot international (celle de FiveThirtyEight/Opta). Modèle <b>entraîné hors-ligne sur ~49 000 matchs réels</b> (1872→2026) : <b>notes Elo</b> par équipe, modèle de buts <b>Poisson + correction Dixon-Coles</b> (maximum de vraisemblance, <b>pondération temporelle</b> — les matchs récents pèsent bien plus), <b>forces attaque/défense par équipe fusionnées avec le xG réel</b> (tirs, tirs cadrés, buts attendus — données StatsBomb CdM 2022 / Euro 2024 / Copa 2024 / CAN 2023, ajustées à l'adversaire), <b>avantage pays-hôte</b>, puis <b>simulation Monte-Carlo</b>. Les vrais résultats connus sont respectés ; seuls les matchs restants sont projetés.</p>
+    <p class="meth" style="margin-top:10px"><b>👕 Couche composition (nouveau) :</b> sous chaque affiche, le XI attendu de chaque équipe (notes joueurs EA Sports FC 26 + stats internationales réelles StatsBomb) ; sors un titulaire blessé/suspendu et la force de l'équipe se recalibre (≈ 27 pts Elo par point de note, calé sur les notes Elo réelles, corrélation r≈0,84), répercuté sur la prédiction <i>et</i> sur les 10 000 simulations. <b>Honnêteté :</b> cette couche ajoute de la <i>profondeur de scénario</i> (« et si tel joueur manque ? »), pas de précision brute — la note EA mesure la <i>qualité</i>, pas la <i>forme du moment</i> (aucune source gratuite fiable pour la forme en club des 48 sélections).</p>
     <div class="stats" id="stats"></div>
     <p class="muted" id="refnote" style="margin-top:10px"></p>
   </div></div>
@@ -116,16 +141,38 @@ footer{color:var(--soft);font-size:12px;text-align:center;padding:24px 18px 50px
   </div></div>
 
 </div>
-<footer>Modèle statistique à but ludique — aucune garantie. Données : martj42/international_results · Elo World Football · Poisson · Monte-Carlo. Phases finales jouées en terrain neutre (sans avantage du terrain).</footer>
+<footer>Modèle statistique à but ludique — aucune garantie. Données : martj42/international_results · xG & compos StatsBomb open-data · notes joueurs EA Sports FC 26 · Elo World Football · Poisson/Dixon-Coles · Monte-Carlo. Phases finales jouées en terrain neutre (sans avantage du terrain).</footer>
 <script src="../predict-model.js"></script>
+<script src="../predict-squads.js"></script>
 <script src="../thirds-table.js"></script>
 <script src="../bracket-core.js"></script>
 <script>
 const M=window.PREDICT_MODEL, RT=M.ratings, P=M.model, OFF=M.offsets||{}, HOSTS={USA:1,CAN:1,MEX:1};
+/* ---- couche compo : EA FC26 (qualité joueur, postes sélection) + stats internationales StatsBomb,
+   calibrée sur l'Elo (pente eloPerOverall). L'effet n'apparaît que si tu modifies le XI attendu. ---- */
+const SQ=window.PREDICT_SQUADS||{teams:{},calib:{}}, SQT=SQ.teams||{}, SLOPE=(SQ.calib&&SQ.calib.eloPerOverall)||25;
+const L_OUT={};                 // code -> Set(noms écartés)
+const L_ADJ={};                 // code -> delta Elo dû à la compo (0 au XI complet)
+const openCompo=new Set();      // clés de matchs dont le panneau compo est ouvert
+function outSet(c){ return L_OUT[c]||(L_OUT[c]=new Set()); }
+function currentXI(c){
+  const s=SQT[c]; if(!s||!s.xi) return null;
+  const out=outSet(c), used=new Set(), xi=[];
+  s.xi.forEach(p=>{
+    if(!out.has(p.n)){ xi.push(p); return; }
+    const rep=(s.bench||[]).find(b=>b.g===p.g&&!used.has(b.n)&&!out.has(b.n));   // meilleur rempl. même poste
+    if(rep){ used.add(rep.n); xi.push(Object.assign({_for:p.n},rep)); }
+  });
+  return xi;
+}
+function xiMeanNow(c){ const xi=currentXI(c); return (xi&&xi.length)? xi.reduce((s,p)=>s+p.o,0)/xi.length : null; }
+function baseMean(c){ const s=SQT[c]; return (s&&s.xi&&s.xi.length)? s.xi.reduce((a,p)=>a+p.o,0)/s.xi.length : null; } // moyenne XI attendu, exacte
+function recomputeAdj(c){ const b=baseMean(c); if(b==null){L_ADJ[c]=0;return;} const m=xiMeanNow(c); L_ADJ[c]=(m==null)?0:SLOPE*(m-b); } // 0 exact au XI complet
 const FACT=[1]; function fact(n){for(let i=FACT.length;i<=n;i++)FACT[i]=FACT[i-1]*i;return FACT[n];}
 function pois(k,l){return Math.exp(-l)*Math.pow(l,k)/fact(k);}
 function lambdas(cH,cA,neutral){
-  const rh=RT[cH],ra=RT[cA]; if(rh==null||ra==null)return null;
+  const rh0=RT[cH],ra0=RT[cA]; if(rh0==null||ra0==null)return null;
+  const rh=rh0+(L_ADJ[cH]||0), ra=ra0+(L_ADJ[cA]||0);   // + ajustement compo (0 par défaut)
   const x=(rh-ra)/100, hb=P.hostBonus||0, oH=OFF[cH]||{a:0,d:0}, oA=OFF[cA]||{a:0,d:0};
   const lh=Math.exp(P.alpha+P.beta*x+(neutral?0:P.eta)+(HOSTS[cH]?hb:0)+oH.a-oA.d);
   const la=Math.exp(P.alpha-P.beta*x+(HOSTS[cA]?hb:0)+oA.a-oH.d);
@@ -169,11 +216,40 @@ function chips(mx){
     +'<div class="tops"><b>Scores exacts les + probables :</b> '+mx.exact.map(e=>e[0]+'–'+e[1]+' ('+pct(e[2])+')').join(' · ')+'</div>';
 }
 
+function teamCompo(c){
+  const s=SQT[c];
+  if(!s||!s.xi||!s.xi.length) return '<div class="cc"><div class="ccn"><img class="fmini" src="https://flagcdn.com/w40/'+T[c].f+'.png" alt="">'+T[c].n+'</div><p class="muted" style="font-size:12px;margin:6px 2px">Compo détaillée indisponible.</p></div>';
+  const out=outSet(c), xi=currentXI(c), mean=xiMeanNow(c), adj=L_ADJ[c]||0;
+  let h='<div class="cc"><div class="ccn"><img class="fmini" src="https://flagcdn.com/w40/'+T[c].f+'.png" alt="">'+T[c].n
+    +'<span class="ccm">XI '+(mean!=null?mean.toFixed(1):'–')+(Math.abs(adj)>=0.5?' · <b class="'+(adj>0?'up':'dn')+'">'+(adj>0?'+':'')+adj.toFixed(0)+' Elo</b>':'')+'</span></div>';
+  s.xi.forEach(p=>{
+    const isOut=out.has(p.n), rep=isOut?(xi||[]).find(q=>q._for===p.n):null;
+    h+='<button type="button" class="pl'+(isOut?' out':'')+'" data-c="'+c+'" data-n="'+encodeURIComponent(p.n)+'" title="'+(isOut?'Réintégrer':'Sortir (blessure/suspension)')+'">'
+      +'<span class="plp">'+p.p+'</span><span class="pln">'+p.n+'</span>'
+      +(isOut&&rep?'<span class="plr">→ '+rep.n+'</span>':'')
+      +'<span class="plo">'+(isOut&&rep?rep.o:p.o)+'</span></button>';
+  });
+  // stats internationales réelles (StatsBomb)
+  if(s.keyIntl&&s.keyIntl.length){
+    h+='<div class="ki"><span class="kih">Stats internationales réelles (StatsBomb · '+(s.sbMatches||0)+' matchs)</span>';
+    s.keyIntl.slice(0,4).forEach(k=>{ h+='<div class="kir"><span class="kn">'+k.n.split(' ').slice(-1)[0]+'</span><span class="kv">'+k.g+'b'+(k.a?' '+k.a+'p':'')+'</span><span class="kv">'+k.xg.toFixed(1)+' xG</span><span class="kv">'+k.sh+' tirs</span></div>'; });
+    h+='</div>';
+  }
+  return h+'</div>';
+}
+function compoPanel(cH,cA,key){
+  if((!SQT[cH]||!SQT[cH].xi)&&(!SQT[cA]||!SQT[cA].xi)) return '';
+  return '<details class="compo" data-key="'+key+'"'+(openCompo.has(key)?' open':'')+'>'
+    +'<summary>👕 Composition & joueurs — clique un titulaire pour le sortir (blessé/suspendu)</summary>'
+    +'<div class="ccgrid">'+teamCompo(cH)+teamCompo(cA)+'</div>'
+    +'<p class="ccnote">Sortir un titulaire → remplacé par le meilleur réserviste au même poste → la force d\'équipe et la prédiction s\'ajustent (calibré : '+SLOPE.toFixed(0)+' pts Elo par point de note EA FC26). Au XI complet attendu : aucun changement. Relance les 10 000 simulations pour voir l\'effet sur le parcours.</p>'
+    +'</details>';
+}
 function simOnceModel(){
   MATCHES.forEach(m=>{ if(m.hs==null){const L=lambdas(m.h,m.a,true); if(L){m.hs=rpois(L[0]);m.as=rpois(L[1]);m.st='FT';}} });
   for(let g=0;g<260;g++){
     const rb=resolveBracket(); let did=false;
-    for(const k of KO){const t=rb.teams[k.no]; if(t&&t.h&&t.a){const key=pairKey(t.h.code,t.a.code); if(!koScores[key]){const mx=matrix(t.h.code,t.a.code,true);const pAdv=mx?mx.pH+mx.pD*0.5:0.5;const w=Math.random()<pAdv?t.h.code:t.a.code;koScores[key]={h:t.h.code,a:t.a.code,hs:0,as:0,st:'FT',winner:w};did=true;break;}}}
+    for(const k of KO){const t=rb.teams[k.no]; if(t&&t.h&&t.a){const key=pairKey(t.h.code,t.a.code); if(!koDecided(koScores[key])){const mx=matrix(t.h.code,t.a.code,true);const pAdv=mx?mx.pH+mx.pD*0.5:0.5;const w=Math.random()<pAdv?t.h.code:t.a.code;koScores[key]={h:t.h.code,a:t.a.code,hs:0,as:0,st:'FT',winner:w};did=true;break;}}}
     if(!did) break;
   }
 }
@@ -220,14 +296,14 @@ function renderPreds(){
   let h='';
   list.forEach(k=>{
     const t=rb.teams[k.no], mx=matrix(t.h.code,t.a.code,true); if(!mx)return;
-    const qa=mx.pH+mx.pD*0.5, qb=mx.pA+mx.pD*0.5;
+    const key=pairKey(t.h.code,t.a.code), qa=mx.pH+mx.pD*0.5, qb=mx.pA+mx.pD*0.5;
     h+='<div class="pmwrap"><div class="pm"><div class="tms">'+
       '<div class="tr '+(qa>=qb?'fav':'')+'"><img class="fmini" src="https://flagcdn.com/w40/'+T[t.h.code].f+'.png" alt="">'+T[t.h.code].n+'<span class="q">qualif '+pct(qa)+'</span></div>'+
       '<div class="tr '+(qb>qa?'fav':'')+'"><img class="fmini" src="https://flagcdn.com/w40/'+T[t.a.code].f+'.png" alt="">'+T[t.a.code].n+'<span class="q">qualif '+pct(qb)+'</span></div>'+
       '</div><div class="sc">'+mx.score[0]+' – '+mx.score[1]+'<small>SCORE LE + PROBABLE</small></div>'+
       '<div class="bar3"><i class="bh" style="width:'+(mx.pH*100)+'%"></i><i class="bd" style="width:'+(mx.pD*100)+'%"></i><i class="ba" style="width:'+(mx.pA*100)+'%"></i></div>'+
       '<div class="b3l"><span>Victoire '+pct(mx.pH)+'</span><span>Nul '+pct(mx.pD)+'</span><span>Victoire '+pct(mx.pA)+'</span></div>'+
-      '</div><details class="adv"><summary>Statistiques avancées (carte de chaleur, +2,5, BTTS…)</summary>'+heatmap(mx,t.h.code,t.a.code)+chips(mx)+'</details></div>';
+      '</div><details class="adv"><summary>Statistiques avancées (carte de chaleur, +2,5, BTTS…)</summary>'+heatmap(mx,t.h.code,t.a.code)+chips(mx)+'</details>'+compoPanel(t.h.code,t.a.code,key)+'</div>';
   });
   box.innerHTML=h;
 }
@@ -268,6 +344,17 @@ async function init(){
   const rn=document.getElementById('refnote');
   if(rn) rn.textContent=refined?('🔄 Notes affinées en direct avec '+refined+' résultat'+(refined>1?'s':'')+' de la Coupe du Monde 2026 — le modèle se précise après chaque match.'):'';
   document.getElementById('run').addEventListener('click',runMC);
+  const preds=document.getElementById('preds');
+  preds.addEventListener('click',e=>{                       // clic sur un joueur : sortir / réintégrer
+    const b=e.target.closest('.pl'); if(!b)return; e.preventDefault();
+    const c=b.dataset.c, n=decodeURIComponent(b.dataset.n), out=outSet(c);
+    out.has(n)?out.delete(n):out.add(n);
+    recomputeAdj(c); renderPreds();
+  });
+  preds.addEventListener('toggle',e=>{                      // mémorise l'ouverture des panneaux compo
+    const d=e.target; if(!d.classList||!d.classList.contains('compo'))return;
+    d.open?openCompo.add(d.dataset.key):openCompo.delete(d.dataset.key);
+  },true);
 }
 init();
 </script>
