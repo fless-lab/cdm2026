@@ -111,7 +111,15 @@ details.compo[open]>summary:before{content:"▾ "}
 .kir .kn{font-weight:700;min-width:74px}
 .kir .kv{color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:11px}
 .ccnote{font-size:11px;color:var(--soft);line-height:1.5;margin:4px 2px 0}
-@media(max-width:560px){.pm .sc{font-size:18px}.ccgrid{grid-template-columns:1fr}}
+.form{display:inline-flex;gap:3px;margin-left:8px;vertical-align:middle}
+.fd{width:8px;height:8px;border-radius:50%;display:inline-block}
+.fd.fw{background:var(--green)}.fd.fn{background:#C9CCCE}.fd.fl{background:var(--live)}
+.ccform{display:flex;align-items:center;gap:5px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin:-2px 2px 7px}
+.ccform .flz{font-size:9px;text-transform:uppercase;letter-spacing:.03em;color:var(--soft);font-weight:800}
+.ccform .fb{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:4px;color:#fff;font-size:9.5px;font-weight:800;font-family:'JetBrains Mono',monospace}
+.ccform .fb.fw{background:var(--green)}.ccform .fb.fn{background:#A9ADB2}.ccform .fb.fl{background:var(--live)}
+.ccform .fsc{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--soft)}
+@media(max-width:560px){.pm .sc{font-size:18px}.ccgrid{grid-template-columns:1fr}.form{display:none}}
 </style>
 </head>
 <body>
@@ -216,12 +224,27 @@ function chips(mx){
     +'<div class="tops"><b>Scores exacts les + probables :</b> '+mx.exact.map(e=>e[0]+'–'+e[1]+' ('+pct(e[2])+')').join(' · ')+'</div>';
 }
 
+function formDots(c){                       // 5 pastilles V/N/D (plus récent à gauche)
+  const f=(SQT[c]&&SQT[c].form)||[]; if(!f.length) return '';
+  const cl={W:'fw',N:'fn',L:'fl'}, lab={W:'V',N:'N',L:'D'};
+  const dots=f.slice(0,5).map(x=>'<i class="fd '+cl[x.r]+'" title="'+lab[x.r]+' '+x.gf+'-'+x.ga+' vs '+x.opp+' ('+x.d+')"></i>').join('');
+  return '<span class="form" title="Forme : 5 derniers matchs (plus récent à gauche)">'+dots+'</span>';
+}
+function formLine(c){                        // ligne forme détaillée + qualité xG (grands tournois)
+  const f=(SQT[c]&&SQT[c].form)||[], xg=(M.xgStats||{})[c];
+  let s='';
+  if(f.length){ const lab={W:'V',N:'N',L:'D'};
+    s+='<span class="flz">Forme</span> '+f.slice(0,5).map(x=>'<b class="fb '+( x.r==='W'?'fw':x.r==='L'?'fl':'fn')+'">'+lab[x.r]+'</b>').join('')
+      +' <span class="fsc">'+f.slice(0,5).map(x=>x.gf+'-'+x.ga).join(' · ')+'</span>'; }
+  if(xg) s+=(f.length?' &nbsp;·&nbsp; ':'')+'<span class="flz">xG</span> '+xg.xgf.toFixed(2)+'→'+xg.xga.toFixed(2);
+  return s?'<div class="ccform">'+s+'</div>':'';
+}
 function teamCompo(c){
   const s=SQT[c];
   if(!s||!s.xi||!s.xi.length) return '<div class="cc"><div class="ccn"><img class="fmini" src="https://flagcdn.com/w40/'+T[c].f+'.png" alt="">'+T[c].n+'</div><p class="muted" style="font-size:12px;margin:6px 2px">Compo détaillée indisponible.</p></div>';
   const out=outSet(c), xi=currentXI(c), mean=xiMeanNow(c), adj=L_ADJ[c]||0;
   let h='<div class="cc"><div class="ccn"><img class="fmini" src="https://flagcdn.com/w40/'+T[c].f+'.png" alt="">'+T[c].n
-    +'<span class="ccm">XI '+(mean!=null?mean.toFixed(1):'–')+(Math.abs(adj)>=0.5?' · <b class="'+(adj>0?'up':'dn')+'">'+(adj>0?'+':'')+adj.toFixed(0)+' Elo</b>':'')+'</span></div>';
+    +'<span class="ccm">XI '+(mean!=null?mean.toFixed(1):'–')+(Math.abs(adj)>=0.5?' · <b class="'+(adj>0?'up':'dn')+'">'+(adj>0?'+':'')+adj.toFixed(0)+' Elo</b>':'')+'</span></div>'+formLine(c);
   s.xi.forEach(p=>{
     const isOut=out.has(p.n), rep=isOut?(xi||[]).find(q=>q._for===p.n):null;
     h+='<button type="button" class="pl'+(isOut?' out':'')+'" data-c="'+c+'" data-n="'+encodeURIComponent(p.n)+'" title="'+(isOut?'Réintégrer':'Sortir (blessure/suspension)')+'">'
@@ -298,8 +321,8 @@ function renderPreds(){
     const t=rb.teams[k.no], mx=matrix(t.h.code,t.a.code,true); if(!mx)return;
     const key=pairKey(t.h.code,t.a.code), qa=mx.pH+mx.pD*0.5, qb=mx.pA+mx.pD*0.5;
     h+='<div class="pmwrap"><div class="pm"><div class="tms">'+
-      '<div class="tr '+(qa>=qb?'fav':'')+'"><img class="fmini" src="https://flagcdn.com/w40/'+T[t.h.code].f+'.png" alt="">'+T[t.h.code].n+'<span class="q">qualif '+pct(qa)+'</span></div>'+
-      '<div class="tr '+(qb>qa?'fav':'')+'"><img class="fmini" src="https://flagcdn.com/w40/'+T[t.a.code].f+'.png" alt="">'+T[t.a.code].n+'<span class="q">qualif '+pct(qb)+'</span></div>'+
+      '<div class="tr '+(qa>=qb?'fav':'')+'"><img class="fmini" src="https://flagcdn.com/w40/'+T[t.h.code].f+'.png" alt="">'+T[t.h.code].n+formDots(t.h.code)+'<span class="q">qualif '+pct(qa)+'</span></div>'+
+      '<div class="tr '+(qb>qa?'fav':'')+'"><img class="fmini" src="https://flagcdn.com/w40/'+T[t.a.code].f+'.png" alt="">'+T[t.a.code].n+formDots(t.a.code)+'<span class="q">qualif '+pct(qb)+'</span></div>'+
       '</div><div class="sc">'+mx.score[0]+' – '+mx.score[1]+'<small>SCORE LE + PROBABLE</small></div>'+
       '<div class="bar3"><i class="bh" style="width:'+(mx.pH*100)+'%"></i><i class="bd" style="width:'+(mx.pD*100)+'%"></i><i class="ba" style="width:'+(mx.pA*100)+'%"></i></div>'+
       '<div class="b3l"><span>Victoire '+pct(mx.pH)+'</span><span>Nul '+pct(mx.pD)+'</span><span>Victoire '+pct(mx.pA)+'</span></div>'+

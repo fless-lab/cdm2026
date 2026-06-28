@@ -133,6 +133,26 @@ for c in TEAMS:
     squads[c]['keyIntl'] = keyintl(c)
     squads[c]['sbMatches'] = team_matches.get(c, 0)
 
+# ---------- 2b) forme nationale : 6 derniers résultats réels (martj42) ----------
+RES = '/tmp/results.csv'
+formrows = {c: [] for c in TEAMS}
+if os.path.exists(RES):
+    allres = [r for r in csv.DictReader(open(RES, encoding='utf-8', errors='replace'))
+              if r['home_score'] not in ('NA','') and r['away_score'] not in ('NA','')]
+    allres.sort(key=lambda r: r['date'])
+    for r in allres:
+        try: hs = int(r['home_score']); as_ = int(r['away_score'])
+        except: continue
+        ch = sb2code.get(strip(r['home_team'])); ca = sb2code.get(strip(r['away_team']))
+        if ch: formrows[ch].append((r['date'], 'H', hs, as_, r['away_team']))
+        if ca: formrows[ca].append((r['date'], 'A', as_, hs, r['home_team']))
+    for c in TEAMS:
+        last = formrows[c][-6:][::-1]   # plus récent en premier
+        squads[c]['form'] = [{
+            'd': d[5:], 'gf': gf, 'ga': ga, 'opp': opp,
+            'r': 'W' if gf > ga else ('L' if gf < ga else 'N')
+        } for (d, ha, gf, ga, opp) in last]
+
 # ---------- 3) calibration EA xiMean -> Elo ----------
 model = json.load(open(REPO + '/predict-model.json'))
 elo = model['ratings']
